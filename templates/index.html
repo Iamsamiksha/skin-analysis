@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Face Age Prediction</title>
+    <style>
+        body { font-family: Arial, sans-serif; text-align: center; }
+        input[type="file"] { margin: 20px 0; }
+        button { padding: 10px 20px; cursor: pointer; }
+        img { width: 300px; height: auto; margin: 20px 0; }
+    </style>
+</head>
+<body>
+    <h1>Upload or Capture a Photo for Age Prediction</h1>
+
+    <!-- Image Upload Section -->
+    <h3>Upload an Image</h3>
+    <form id="uploadForm" enctype="multipart/form-data">
+        <input type="file" name="file" id="fileInput" accept="image/*">
+        <button type="submit">Upload Image</button>
+    </form>
+
+    <!-- Webcam Capture Section -->
+    <h3>Capture from Webcam</h3>
+    <button onclick="captureImage()">Capture Image</button>
+    <br>
+    <video id="webcam" width="300" height="200" autoplay></video>
+
+    <!-- Results -->
+    <h3>Prediction Result</h3>
+    <div id="result"></div>
+    <img id="uploadedImage" src="" alt="Uploaded Image">
+
+    <script>
+        // Webcam streaming
+        const video = document.getElementById("webcam");
+        const constraints = { video: { facingMode: "user" } };
+
+        navigator.mediaDevices.getUserMedia(constraints)
+            .then((stream) => {
+                video.srcObject = stream;
+            })
+            .catch((error) => {
+                alert("Error accessing webcam: " + error);
+            });
+
+        // Capture image from webcam and send to backend
+        function captureImage() {
+            const canvas = document.createElement("canvas");
+            const context = canvas.getContext("2d");
+            context.drawImage(video, 0, 0, canvas.width, canvas.height);
+            const imageData = canvas.toDataURL("image/jpeg");
+
+            fetch('/capture')
+                .then(response => response.json())
+                .then(data => {
+                    console.log(data);
+                    document.getElementById('result').innerText = `Predicted Age: ${data.age}`;
+                    document.getElementById('uploadedImage').src = imageData;
+                })
+                .catch(error => {
+                    console.log(error);
+                    document.getElementById('result').innerText = "Error capturing image";
+                });
+        }
+
+        // Handle image upload
+        document.getElementById("uploadForm").addEventListener("submit", function(event) {
+            event.preventDefault();
+
+            const formData = new FormData();
+            formData.append("file", document.getElementById("fileInput").files[0]);
+
+            fetch('/upload', {
+                method: 'POST',
+                body: formData
+            })
+            .then(response => response.json())
+            .then(data => {
+                console.log(data);
+                document.getElementById('result').innerText = `Predicted Age: ${data.age}`;
+                document.getElementById('uploadedImage').src = URL.createObjectURL(document.getElementById("fileInput").files[0]);
+            })
+            .catch(error => {
+                console.log(error);
+                document.getElementById('result').innerText = "Error uploading image";
+            });
+        });
+    </script>
+</body>
+</html>
