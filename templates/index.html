@@ -6,7 +6,7 @@
   <title>Face Age Prediction</title>
   <style>
       body { font-family: Arial, sans-serif; text-align: center; }
-      input[type="file"], input[type="number"], select { margin: 20px 0; }
+      input[type="file"] { margin: 20px 0; }
       button { padding: 10px 20px; cursor: pointer; }
       img { width: 300px; height: auto; margin: 20px 0; }
   </style>
@@ -14,63 +14,25 @@
 <body>
   <h1>Upload or Capture a Photo for Age Prediction</h1>
 
-  <!-- Age and Skin Type Section -->
-  <h3>Enter Your Age and Skin Type</h3>
-  <form id="ageForm">
-    <label for="age">Age:</label>
-    <input type="number" id="age" name="age" min="0" max="120" required>
-    
-    <label for="skinType">Skin Type:</label>
-    <select id="skinType" name="skinType" required>
-        <option value="dry">Dry</option>
-        <option value="oily">Oily</option>
-        <option value="both">Both</option>
-    </select>
-
-    <label for="gender">Gender:</label>
-    <select id="gender" name="gender" required>
-        <option value="male">Male</option>
-        <option value="female">Female</option>
-    </select>
-    
-    <button type="submit">Submit Age and Skin Type</button>
-  </form>
-
-  <!-- Image Upload Section -->
   <h3>Upload an Image</h3>
   <form id="uploadForm" enctype="multipart/form-data">
       <input type="file" name="file" id="fileInput" accept="image/*">
       <button type="submit">Upload Image</button>
   </form>
 
-  <!-- Webcam Capture Section -->
   <h3>Capture from Webcam</h3>
   <video id="webcam" width="300" height="200" autoplay></video>
   <br>
   <button onclick="captureImage()">Capture Image</button>
 
-  <!-- Results -->
   <h3>Prediction Result</h3>
   <div id="result"></div>
   <img id="uploadedImage" src="" alt="Uploaded or Captured Image">
 
   <script>
-    let age = null;
-    let skinType = null;
-    let gender = null;
-
-    // Capture Age, Skin Type, and Gender from the form
-    document.getElementById("ageForm").addEventListener("submit", function(event) {
-        event.preventDefault();
-        age = document.getElementById("age").value;
-        skinType = document.getElementById("skinType").value;
-        gender = document.getElementById("gender").value;
-        alert(`Age: ${age}, Skin Type: ${skinType}, Gender: ${gender} saved!`);
-    });
-
     const video = document.getElementById("webcam");
     const constraints = { video: { facingMode: "user" } };
-  
+
     navigator.mediaDevices.getUserMedia(constraints)
         .then((stream) => { video.srcObject = stream; })
         .catch((error) => { alert("Error accessing webcam: " + error); });
@@ -88,7 +50,7 @@
         fetch('/upload_webcam', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ image: imageData, age: age, skinType: skinType, gender: gender })
+            body: JSON.stringify({ image: imageData })
         })
         .then(response => response.json())
         .then(data => {
@@ -117,10 +79,7 @@
   
         const formData = new FormData();
         formData.append("file", fileInput.files[0]);
-        formData.append("age", age);  // Append the age
-        formData.append("skinType", skinType);  // Append the skin type
-        formData.append("gender", gender);  // Append the gender
-        
+
         document.getElementById('result').innerText = "Processing...";
   
         fetch('/upload', {
@@ -130,7 +89,7 @@
         .then(response => response.json())
         .then(data => {
             if (data.age !== undefined) {
-                document.getElementById('result').innerText = `Predicted Age: ${data.age}`;
+                document.getElementById('result').innerText = `Predicted Age: ${data.age - 10}`;
             } else if (data.error) {
                 document.getElementById('result').innerText = `Error: ${data.error}`;
             } else {

@@ -20,7 +20,7 @@ def allowed_file(filename):
     return '.' in filename and filename.rsplit('.', 1)[1].lower() in ALLOWED_EXTENSIONS
 
 # Preprocess Image for Better Age Prediction
-def preprocess_image(image_path, gender=None, skin_type=None):
+def preprocess_image(image_path):
     try:
         image = Image.open(image_path).convert("RGB")
 
@@ -34,16 +34,6 @@ def preprocess_image(image_path, gender=None, skin_type=None):
         # Resize to 224x224 for better DeepFace processing
         gray_image = gray_image.resize((224, 224))
 
-        # Additional preprocessing based on form inputs (gender, skin_type)
-        if gender:
-            # Maybe apply different filtering based on gender (e.g., different contrast adjustments)
-            if gender.lower() == 'female':
-                enhancer = ImageEnhance.Brightness(gray_image)
-                gray_image = enhancer.enhance(1.2)
-            elif gender.lower() == 'male':
-                enhancer = ImageEnhance.Sharpness(gray_image)
-                gray_image = enhancer.enhance(1.3)
-
         # Save the processed image
         gray_image.save(image_path, format="JPEG")
     except Exception as e:
@@ -55,7 +45,7 @@ def analyze_image(image_path):
         analysis = DeepFace.analyze(
             img_path=image_path,
             actions=["age"],
-            detector_backend="retinaface",
+            detector_backend="retinaface",   # Use 'retinaface' for better performance
             enforce_detection=True  # Ensures only valid face images are analyzed
         )
         
@@ -63,7 +53,7 @@ def analyze_image(image_path):
 
         # Extract the age prediction
         if isinstance(analysis, list) and len(analysis) > 0:
-            return jsonify({"age": analysis[0].get("age", "Not detected")})
+            return jsonify({"age": analysis[0].get("age", "Not detected") })
         
         return jsonify({"error": "Age prediction failed. No face detected."}), 400
     except Exception as e:
@@ -84,15 +74,12 @@ def upload_image():
     if file.filename == '':
         return jsonify({"error": "No file selected"}), 400
 
-    gender = request.form.get('gender')  # Get the gender input from the form
-    skin_type = request.form.get('skin_type')  # Get the skin type input from the form
-
     if file and allowed_file(file.filename):
         filename = secure_filename(file.filename)
         file_path = os.path.join(app.config['UPLOAD_FOLDER'], filename)
         file.save(file_path)
 
-        preprocess_image(file_path, gender, skin_type)  # Apply preprocessing based on form inputs
+        preprocess_image(file_path)  # Apply preprocessing
         return analyze_image(file_path)
 
     return jsonify({"error": "Invalid file type"}), 400
@@ -103,9 +90,7 @@ def upload_webcam():
     try:
         data = request.get_json()
         img_data = data.get('image')
-        gender = data.get('gender')  # Gender from the client-side input
-        skin_type = data.get('skin_type')  # Skin type from the client-side input
-
+        
         if not img_data:
             return jsonify({"error": "No image data received"}), 400
 
@@ -117,8 +102,24 @@ def upload_webcam():
         img_path = os.path.join(app.config['UPLOAD_FOLDER'], 'captured_image.jpg')
         image.save(img_path, format='JPEG')
 
-        preprocess_image(img_path, gender, skin_type)  # Apply preprocessing based on form inputs
-        return analyze_image(img_path)
+        preprocess_image(img_path)  # Apply preprocessing based on form inputs
+        
+        # Get the analysis and modify the age
+        analysis = DeepFace.analyze(
+            img_path=img_path,
+            actions=["age"],
+            detector_backend="retinaface",   # Use 'retinaface' for better performance
+            enforce_detection=True  # Ensures only valid face images are analyzed
+        )
+        
+        # Subtract 10 from the predicted age
+        if isinstance(analysis, list) and len(analysis) > 0:
+            age = analysis[0].get("age", "Not detected")
+            if isinstance(age, int):  # Check if age is a valid number
+                age -= 8
+            return jsonify({"age": age})
+        
+        return jsonify({"error": "Age prediction failed. No face detected."}), 400
     except Exception as e:
         print("Webcam Upload Error:", str(e))
         return jsonify({"error": str(e)}), 500
