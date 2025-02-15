@@ -8,5 +8,3 @@ __pycache__/
 # Virtual environment
 venv/
 
-
-models/vgg-face-weights.zip
