@@ -17,10 +17,13 @@
             max-width: 500px;
             margin: 50px auto;
             padding: 25px;
-            background: rgba(255, 255, 255, 0.9);
+            background: rgba(255, 255, 255, 0.95);
             border-radius: 12px;
             box-shadow: 0px 10px 30px rgba(0, 0, 0, 0.2);
             color: black;
+        }
+        h2, h3 {
+            color: #ff5e62;
         }
         button {
             background: #ff5e62;
@@ -35,12 +38,22 @@
         }
         button:hover {
             background: #ff9966;
+            transform: scale(1.05);
         }
         select {
             padding: 8px;
             margin: 5px;
             border-radius: 5px;
             border: 1px solid #ccc;
+            width: 100%;
+            text-align: center;
+        }
+        .factor-container {
+            text-align: left;
+            margin: 10px 0;
+        }
+        label {
+            font-weight: bold;
         }
         #video {
             display: block;
@@ -66,39 +79,70 @@
 <body>
     <div class="container">
         <h2>Skin Age & Real Age Prediction</h2>
+        
         <video id="video" width="400" height="300" autoplay></video>
         <button id="capture">📸 Capture</button>
+        
         <canvas id="canvas" width="400" height="300" style="display: none;"></canvas>
         <img id="capturedImage" />
         
         <h3>Skin Factors</h3>
-        <label>Sun Exposure:</label>
-        <select id="sun_exposure">
-            <option value="low">Low</option>
-            <option value="moderate">Moderate</option>
-            <option value="high">High</option>
-        </select>
-        <br>
-        <label>Hydration:</label>
-        <select id="hydration">
-            <option value="high">High</option>
-            <option value="moderate">Moderate</option>
-            <option value="low">Low</option>
-        </select>
-        <br>
-        <label>Smoking:</label>
-        <select id="smoking">
-            <option value="no">No</option>
-            <option value="yes">Yes</option>
-        </select>
-        <br>
-        <label>Stress Level:</label>
-        <select id="stress">
-            <option value="low">Low</option>
-            <option value="moderate">Moderate</option>
-            <option value="high">High</option>
-        </select>
-        <br>
+        
+        <div class="factor-container">
+            <label>🌞 Sun Exposure:</label>
+            <select id="sun_exposure">
+                <option value="very_low">Very Low</option>
+                <option value="low">Low</option>
+                <option value="moderate">Moderate</option>
+                <option value="high">High</option>
+                <option value="very_high">Very High</option>
+            </select>
+        </div>
+
+        <div class="factor-container">
+            <label>💤 Sleep Cycle:</label>
+            <select id="sleep_cycle">
+                <option value="very_low">Very Low</option>
+                <option value="low">Low</option>
+                <option value="moderate">Moderate</option>
+                <option value="high">High</option>
+                <option value="very_high">Very High</option>
+            </select>
+        </div>
+
+        <div class="factor-container">
+            <label>🥗 Diet Level:</label>
+            <select id="diet_level">
+                <option value="very_low">Very Low</option>
+                <option value="low">Low</option>
+                <option value="moderate">Moderate</option>
+                <option value="high">High</option>
+                <option value="very_high">Very High</option>
+            </select>
+        </div>
+
+        <div class="factor-container">
+            <label>😰 Stress Level:</label>
+            <select id="stress_level">
+                <option value="very_low">Very Low</option>
+                <option value="low">Low</option>
+                <option value="moderate">Moderate</option>
+                <option value="high">High</option>
+                <option value="very_high">Very High</option>
+            </select>
+        </div>
+
+        <div class="factor-container">
+            <label>💧 Water Intake:</label>
+            <select id="water_intake">
+                <option value="very_low">Very Low</option>
+                <option value="low">Low</option>
+                <option value="moderate">Moderate</option>
+                <option value="high">High</option>
+                <option value="very_high">Very High</option>
+            </select>
+        </div>
+        
         <button id="predict">🔍 Predict Age</button>
         <h3 id="result"></h3>
     </div>
@@ -127,9 +171,10 @@
             const imageData = canvas.toDataURL('image/jpeg');
             const skinFactors = {
                 sun_exposure: document.getElementById('sun_exposure').value,
-                hydration: document.getElementById('hydration').value,
-                smoking: document.getElementById('smoking').value,
-                stress: document.getElementById('stress').value
+                sleep_cycle: document.getElementById('sleep_cycle').value,
+                diet_level: document.getElementById('diet_level').value,
+                stress_level: document.getElementById('stress_level').value,
+                water_intake: document.getElementById('water_intake').value
             };
             
             const response = await fetch('/upload_webcam', {

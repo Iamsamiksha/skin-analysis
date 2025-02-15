@@ -51,13 +51,20 @@ def analyze_image(image_path):
         print("Analysis error:", str(e))
         return None
 
-# Calculate Skin Age
+# Calculate Skin Age Based on Parameters
 def calculate_skin_age(real_age, skin_factors):
     if real_age is None:
         return "Error in predicting real age"
     
-    impact = {"low": -2, "moderate": 0, "high": 3, "yes": 5, "no": -2}
-    skin_age_adjustment = sum(impact.get(skin_factors.get(key, "moderate"), 0) for key in skin_factors)
+    adjustments = {
+        "sun_exposure": {"very_low": -1, "low": 0, "moderate": 1, "high": 2, "very_high": 3},
+        "sleep_cycle": {"very_low": 2, "low": 1, "moderate": 0, "high": -1, "very_high": -2},
+        "diet_level": {"very_poor": 3, "poor": 2, "moderate": 1, "healthy": 0, "very_healthy": -1},
+        "stress_level": {"very_low": -2, "low": -1, "moderate": 0, "high": 1, "very_high": 2},
+        "water_intake": {"very_low": 3, "low": 2, "moderate": 1, "high": 0, "very_high": -1}
+    }
+    
+    skin_age_adjustment = sum(adjustments[param].get(skin_factors.get(param, "moderate"), 0) for param in adjustments)
     
     skin_age = real_age + skin_age_adjustment
     return max(1, skin_age)
