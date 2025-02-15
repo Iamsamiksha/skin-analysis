@@ -1,107 +1,150 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Face Age Prediction</title>
-  <style>
-      body { font-family: Arial, sans-serif; text-align: center; }
-      input[type="file"] { margin: 20px 0; }
-      button { padding: 10px 20px; cursor: pointer; }
-      img { width: 300px; height: auto; margin: 20px 0; }
-  </style>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Skin Age & Real Age Prediction</title>
+    <style>
+        body {
+            font-family: 'Poppins', sans-serif;
+            text-align: center;
+            background: linear-gradient(to right, #ff9966, #ff5e62);
+            color: white;
+            margin: 0;
+            padding: 0;
+        }
+        .container {
+            max-width: 500px;
+            margin: 50px auto;
+            padding: 25px;
+            background: rgba(255, 255, 255, 0.9);
+            border-radius: 12px;
+            box-shadow: 0px 10px 30px rgba(0, 0, 0, 0.2);
+            color: black;
+        }
+        button {
+            background: #ff5e62;
+            border: none;
+            color: white;
+            padding: 12px 18px;
+            margin-top: 15px;
+            font-size: 16px;
+            cursor: pointer;
+            border-radius: 6px;
+            transition: 0.3s;
+        }
+        button:hover {
+            background: #ff9966;
+        }
+        select {
+            padding: 8px;
+            margin: 5px;
+            border-radius: 5px;
+            border: 1px solid #ccc;
+        }
+        #video {
+            display: block;
+            margin: 15px auto;
+            border-radius: 8px;
+            border: 2px solid #ff5e62;
+        }
+        #capturedImage {
+            display: none;
+            width: 100%;
+            margin-top: 15px;
+            border-radius: 8px;
+            border: 2px solid #ff5e62;
+        }
+        #result {
+            font-size: 18px;
+            font-weight: bold;
+            margin-top: 15px;
+            color: #ff5e62;
+        }
+    </style>
 </head>
 <body>
-  <h1>Upload or Capture a Photo for Age Prediction</h1>
-
-  <h3>Upload an Image</h3>
-  <form id="uploadForm" enctype="multipart/form-data">
-      <input type="file" name="file" id="fileInput" accept="image/*">
-      <button type="submit">Upload Image</button>
-  </form>
-
-  <h3>Capture from Webcam</h3>
-  <video id="webcam" width="300" height="200" autoplay></video>
-  <br>
-  <button onclick="captureImage()">Capture Image</button>
-
-  <h3>Prediction Result</h3>
-  <div id="result"></div>
-  <img id="uploadedImage" src="" alt="Uploaded or Captured Image">
-
-  <script>
-    const video = document.getElementById("webcam");
-    const constraints = { video: { facingMode: "user" } };
-
-    navigator.mediaDevices.getUserMedia(constraints)
-        .then((stream) => { video.srcObject = stream; })
-        .catch((error) => { alert("Error accessing webcam: " + error); });
-  
-    function captureImage() {
-        const canvas = document.createElement("canvas");
-        canvas.width = video.videoWidth || 640;
-        canvas.height = video.videoHeight || 480;
-        const context = canvas.getContext("2d");
-        context.drawImage(video, 0, 0, canvas.width, canvas.height);
-        const imageData = canvas.toDataURL("image/jpeg");
-  
-        document.getElementById('result').innerText = "Processing...";
+    <div class="container">
+        <h2>Skin Age & Real Age Prediction</h2>
+        <video id="video" width="400" height="300" autoplay></video>
+        <button id="capture">📸 Capture</button>
+        <canvas id="canvas" width="400" height="300" style="display: none;"></canvas>
+        <img id="capturedImage" />
         
-        fetch('/upload_webcam', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ image: imageData })
-        })
-        .then(response => response.json())
-        .then(data => {
-            if (data.age !== undefined) {
-                document.getElementById('result').innerText = `Predicted Age: ${data.age}`;
-            } else if (data.error) {
-                document.getElementById('result').innerText = `Error: ${data.error}`;
-            } else {
-                document.getElementById('result').innerText = "No age prediction returned.";
-            }
-            document.getElementById('uploadedImage').src = imageData;
-        })
-        .catch(error => {
-            console.log("Error:", error);
-            document.getElementById('result').innerText = "Server error. Try again.";
+        <h3>Skin Factors</h3>
+        <label>Sun Exposure:</label>
+        <select id="sun_exposure">
+            <option value="low">Low</option>
+            <option value="moderate">Moderate</option>
+            <option value="high">High</option>
+        </select>
+        <br>
+        <label>Hydration:</label>
+        <select id="hydration">
+            <option value="high">High</option>
+            <option value="moderate">Moderate</option>
+            <option value="low">Low</option>
+        </select>
+        <br>
+        <label>Smoking:</label>
+        <select id="smoking">
+            <option value="no">No</option>
+            <option value="yes">Yes</option>
+        </select>
+        <br>
+        <label>Stress Level:</label>
+        <select id="stress">
+            <option value="low">Low</option>
+            <option value="moderate">Moderate</option>
+            <option value="high">High</option>
+        </select>
+        <br>
+        <button id="predict">🔍 Predict Age</button>
+        <h3 id="result"></h3>
+    </div>
+    
+    <script>
+        const video = document.getElementById('video');
+        const canvas = document.getElementById('canvas');
+        const captureButton = document.getElementById('capture');
+        const predictButton = document.getElementById('predict');
+        const result = document.getElementById('result');
+        const context = canvas.getContext('2d');
+        const capturedImage = document.getElementById('capturedImage');
+        
+        navigator.mediaDevices.getUserMedia({ video: true })
+            .then(stream => { video.srcObject = stream; })
+            .catch(err => console.error("Camera access denied", err));
+        
+        captureButton.addEventListener('click', () => {
+            context.drawImage(video, 0, 0, canvas.width, canvas.height);
+            const imageData = canvas.toDataURL('image/jpeg');
+            capturedImage.src = imageData;
+            capturedImage.style.display = 'block';
         });
-    }
-  
-    document.getElementById("uploadForm").addEventListener("submit", function(event) {
-        event.preventDefault();
-        const fileInput = document.getElementById("fileInput");
-        if (fileInput.files.length === 0) {
-            alert("Please select a file to upload.");
-            return;
-        }
-  
-        const formData = new FormData();
-        formData.append("file", fileInput.files[0]);
-
-        document.getElementById('result').innerText = "Processing...";
-  
-        fetch('/upload', {
-            method: 'POST',
-            body: formData
-        })
-        .then(response => response.json())
-        .then(data => {
-            if (data.age !== undefined) {
-                document.getElementById('result').innerText = `Predicted Age: ${data.age - 10}`;
-            } else if (data.error) {
-                document.getElementById('result').innerText = `Error: ${data.error}`;
+        
+        predictButton.addEventListener('click', async () => {
+            const imageData = canvas.toDataURL('image/jpeg');
+            const skinFactors = {
+                sun_exposure: document.getElementById('sun_exposure').value,
+                hydration: document.getElementById('hydration').value,
+                smoking: document.getElementById('smoking').value,
+                stress: document.getElementById('stress').value
+            };
+            
+            const response = await fetch('/upload_webcam', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ image: imageData, skin_factors: skinFactors })
+            });
+            const data = await response.json();
+            
+            if (data.error) {
+                result.innerHTML = `❌ Error: ${data.error}`;
             } else {
-                document.getElementById('result').innerText = "No age prediction returned.";
+                result.innerHTML = `✅ Real Age: <b>${data.real_age}</b>, Skin Age: <b>${data.skin_age}</b>`;
             }
-            document.getElementById('uploadedImage').src = URL.createObjectURL(fileInput.files[0]);
-        })
-        .catch(error => {
-            console.log("Error:", error);
-            document.getElementById('result').innerText = "Server error. Try again.";
         });
-    });
-  </script>
+    </script>
 </body>
 </html>
