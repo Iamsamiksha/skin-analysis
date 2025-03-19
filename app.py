@@ -60,6 +60,7 @@ def analyze_skin_quality(image_path):
         "pigmentation": "Minimal pigmentation" if pigmentation < 20 else "Moderate pigmentation" if pigmentation < 40 else "High pigmentation"
     }
     print(insights)
+    print(skin_quality_score)
     return skin_quality_score, insights
 
 # Age Analysis
@@ -97,7 +98,8 @@ def calculate_skin_age(real_age, skin_quality_score, skin_factors):
 @app.route('/')
 def index():
     insights = {}
-    return render_template('index.html', insights=insights)
+    skin_quality_score = ''
+    return render_template('index.html', insights=insights,skin_quality_score=skin_quality_score)
 
 
 @app.route('/upload_webcam', methods=['POST'])
