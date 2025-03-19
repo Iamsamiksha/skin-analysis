@@ -82,7 +82,7 @@
         
         <video id="video" width="400" height="300" autoplay></video>
         <button id="capture">📸 Capture</button>
-        
+
         <canvas id="canvas" width="400" height="300" style="display: none;"></canvas>
         <img id="capturedImage" />
         
@@ -145,28 +145,51 @@
         
         <button id="predict">🔍 Predict Age</button>
         <h3 id="result"></h3>
+
     </div>
     
+    <div class="container">
+        <h1>Your Skin Insights</h1>
+        <div class="insight">
+            <h2>Want to know about your dark circles?</h2>
+            <p><strong>{{ insights['dark_circles'] }}</strong></p>
+        </div>
+        <div class="insight">
+            <h2>Curious about fine lines and wrinkles?</h2>
+            <p><strong>{{ insights['wrinkles'] }}</strong></p>
+        </div>
+        <div class="insight">
+            <h2>How even is your skin tone?</h2>
+            <p><strong>{{ insights['evenness'] }}</strong></p>
+        </div>
+        <div class="insight">
+            <h2>Concerned about pigmentation?</h2>
+            <p><strong>{{ insights['pigmentation'] }}</strong></p>
+        </div>
+        <h2>Your Skin Quality Score: <strong>{{ skin_quality_score }}</strong></h2>
+    </div>
+    <div id="insights"></div>
     <script>
         const video = document.getElementById('video');
         const canvas = document.getElementById('canvas');
         const captureButton = document.getElementById('capture');
         const predictButton = document.getElementById('predict');
         const result = document.getElementById('result');
+        const insightsDiv = document.getElementById('insights');
         const context = canvas.getContext('2d');
         const capturedImage = document.getElementById('capturedImage');
-        
+    
         navigator.mediaDevices.getUserMedia({ video: true })
             .then(stream => { video.srcObject = stream; })
             .catch(err => console.error("Camera access denied", err));
-        
+    
         captureButton.addEventListener('click', () => {
             context.drawImage(video, 0, 0, canvas.width, canvas.height);
             const imageData = canvas.toDataURL('image/jpeg');
             capturedImage.src = imageData;
             capturedImage.style.display = 'block';
         });
-        
+    
         predictButton.addEventListener('click', async () => {
             const imageData = canvas.toDataURL('image/jpeg');
             const skinFactors = {
@@ -176,18 +199,19 @@
                 stress_level: document.getElementById('stress_level').value,
                 water_intake: document.getElementById('water_intake').value
             };
-            
+    
             const response = await fetch('/upload_webcam', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({ image: imageData, skin_factors: skinFactors })
             });
             const data = await response.json();
-            
+    
             if (data.error) {
                 result.innerHTML = `❌ Error: ${data.error}`;
             } else {
                 result.innerHTML = `✅ Real Age: <b>${data.real_age}</b>, Skin Age: <b>${data.skin_age}</b>`;
+                insightsDiv.innerHTML = "<h3>Skin Insights:</h3>" + Object.entries(data.insights).map(([key, value]) => `<p><b>${key.replace(/_/g, ' ')}:</b> ${value}</p>`).join('');
             }
         });
     </script>
