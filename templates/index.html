@@ -55,11 +55,25 @@
         label {
             font-weight: bold;
         }
+        #video-container {
+            position: relative;
+            display: inline-block;
+        }
         #video {
             display: block;
-            margin: 15px auto;
             border-radius: 8px;
             border: 2px solid #ff5e62;
+        }
+        #faceOutline {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: 180px;
+            height: 240px;
+            border: 3px solid rgba(255, 255, 255, 0.8);
+            border-radius: 50%;
+            pointer-events: none;
         }
         #capturedImage {
             display: none;
@@ -80,7 +94,10 @@
     <div class="container">
         <h2>Skin Age & Real Age Prediction</h2>
         
-        <video id="video" width="400" height="300" autoplay></video>
+        <div id="video-container">
+            <video id="video" width="400" height="300" autoplay></video>
+            <div id="faceOutline"></div>
+        </div>
         <button id="capture">📸 Capture</button>
 
         <canvas id="canvas" width="400" height="300" style="display: none;"></canvas>
@@ -145,30 +162,10 @@
         
         <button id="predict">🔍 Predict Age</button>
         <h3 id="result"></h3>
-
     </div>
     
-    <div class="container">
-        <h1>Your Skin Insights</h1>
-        <div class="insight">
-            <h2>Want to know about your dark circles?</h2>
-            <p><strong>{{ insights['dark_circles'] }}</strong></p>
-        </div>
-        <div class="insight">
-            <h2>Curious about fine lines and wrinkles?</h2>
-            <p><strong>{{ insights['wrinkles'] }}</strong></p>
-        </div>
-        <div class="insight">
-            <h2>How even is your skin tone?</h2>
-            <p><strong>{{ insights['evenness'] }}</strong></p>
-        </div>
-        <div class="insight">
-            <h2>Concerned about pigmentation?</h2>
-            <p><strong>{{ insights['pigmentation'] }}</strong></p>
-        </div>
-        <h2>Your Skin Quality Score: <strong>{{ skin_quality_score }}</strong></h2>
-    </div>
     <div id="insights"></div>
+    
     <script>
         const video = document.getElementById('video');
         const canvas = document.getElementById('canvas');
