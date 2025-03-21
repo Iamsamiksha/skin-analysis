@@ -54,9 +54,9 @@ def analyze_skin_quality(image_path):
     
     skin_quality_score = max(0, 100 - (dark_areas * 0.3 + wrinkle_intensity * 0.3 + evenness * 0.2 + pigmentation * 0.2))
     insights = {
-        "dark_circles": "Mild dark circles" if dark_areas < 10 else "Noticeable dark circles" if dark_areas < 20 else "Prominent dark circles",
-        "wrinkles": "Smooth skin" if wrinkle_intensity < 5 else "Few fine lines" if wrinkle_intensity < 15 else "Visible wrinkles",
-        "evenness": "Even skin tone" if evenness < 20 else "Slight unevenness" if evenness < 30 else "Noticeable uneven skin tone",
+        "dark_circles": "Mild dark circles" if dark_areas < 20 else "Noticeable dark circles" if dark_areas < 30 else "Prominent dark circles",
+        "wrinkles": "Smooth skin" if wrinkle_intensity < 15 else "Few fine lines" if wrinkle_intensity < 25 else "Visible wrinkles",
+        "evenness": "Even skin tone" if evenness < 25 else "Slight unevenness" if evenness < 35 else "Noticeable uneven skin tone",
         "pigmentation": "Minimal pigmentation" if pigmentation < 20 else "Moderate pigmentation" if pigmentation < 40 else "High pigmentation"
     }
     print(insights)
@@ -117,16 +117,54 @@ def upload_webcam():
         image = Image.open(BytesIO(img_bytes)).convert("RGB")
         img_path = os.path.join(app.config['UPLOAD_FOLDER'], 'captured_image.jpg')
         image.save(img_path, format='JPEG')
+
+        # Load the image for face detection
+        img_cv2 = cv2.imread(img_path)
+        gray = cv2.cvtColor(img_cv2, cv2.COLOR_BGR2GRAY)
+
+        # Load OpenCV pre-trained face detector
+        face_cascade = cv2.CascadeClassifier(cv2.data.haarcascades + 'haarcascade_frontalface_default.xml')
+        faces = face_cascade.detectMultiScale(gray, scaleFactor=1.1, minNeighbors=5, minSize=(100, 100))
+
+        if len(faces) == 0:
+            return jsonify({"error": "No face detected. Please ensure your face is visible in the frame."}), 400
+        elif len(faces) > 1:
+            return jsonify({"error": "Multiple faces detected. Please capture an image with only one person."}), 400
+        
+        # Check if the face is too small or too large (too far or too close)
+        (x, y, w, h) = faces[0]
+        face_area = w * h
+        img_area = img_cv2.shape[0] * img_cv2.shape[1]
+
+        if face_area / img_area < 0.2:  # Face occupies less than 5% of the image
+            return jsonify({"error": "Face too far from the camera. Move closer."}), 400
+        elif face_area / img_area > 0.5:  # Face occupies more than 50% of the image
+            return jsonify({"error": "Face too close to the camera. Step back."}), 400
+
+        # Check brightness (lighting conditions)
+        brightness = np.mean(gray)
+        if brightness < 90:
+            return jsonify({"error": "Low lighting detected. Please improve lighting conditions."}), 400
+        elif brightness > 200:
+            return jsonify({"error": "Overexposed image detected. Reduce lighting or avoid direct sunlight."}), 400
         
         preprocess_image(img_path)
         real_age = analyze_image(img_path)
         skin_quality_score, insights = analyze_skin_quality(img_path)
         skin_age = calculate_skin_age(real_age, skin_quality_score, skin_factors)
-        
-        return jsonify({"real_age": real_age, "skin_quality_score": skin_quality_score, "skin_age": skin_age, "insights": insights, "image_path": img_path})
+
+        return jsonify({
+            "real_age": real_age,
+            "skin_quality_score": skin_quality_score,
+            "skin_age": skin_age,
+            "insights": insights,
+            "image_path": img_path
+        })
+
     except Exception as e:
         print("Webcam Upload Error:", str(e))
         return jsonify({"error": str(e)}), 500
+
 
 if __name__ == "__main__":
     app.run(debug=True)
