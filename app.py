@@ -32,6 +32,17 @@ def preprocess_image(image_path):
         print("Preprocessing Error:", str(e))
 
 # Skin Quality Analysis
+def calculate_skin_quality(dark_circles, wrinkles, evenness, pigmentation, real_age):
+    age_factor = (real_age ** 2) / 200  # Non-linear age impact
+    skin_quality_score = max(0, 100 - (
+        0.25 * dark_circles +
+        0.25 * wrinkles +
+        0.20 * evenness +
+        0.20 * pigmentation +
+        0.10 * age_factor
+    ))
+    return round(skin_quality_score, 2)
+
 def analyze_skin_quality(image_path):
     image = cv2.imread(image_path)
     gray = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
@@ -52,16 +63,15 @@ def analyze_skin_quality(image_path):
     l_channel, a_channel, b_channel = cv2.split(lab)
     pigmentation = np.std(a_channel) + np.std(b_channel)
     
-    skin_quality_score = max(0, 100 - (dark_areas * 0.3 + wrinkle_intensity * 0.3 + evenness * 0.2 + pigmentation * 0.2))
     insights = {
         "dark_circles": "Mild dark circles" if dark_areas < 20 else "Noticeable dark circles" if dark_areas < 30 else "Prominent dark circles",
         "wrinkles": "Smooth skin" if wrinkle_intensity < 15 else "Few fine lines" if wrinkle_intensity < 25 else "Visible wrinkles",
-        "evenness": "Even skin tone" if evenness < 25 else "Slight unevenness" if evenness < 35 else "Noticeable uneven skin tone",
+        "evenness": "Even skin tone" if evenness < 80 else "Slight unevenness" if evenness < 100 else "Noticeable uneven skin tone",
         "pigmentation": "Minimal pigmentation" if pigmentation < 20 else "Moderate pigmentation" if pigmentation < 40 else "High pigmentation"
     }
-    print(insights)
-    print(skin_quality_score)
-    return skin_quality_score, insights
+
+    # Calculate skin quality score
+    return calculate_skin_quality(dark_areas, wrinkle_intensity, evenness, pigmentation, 25), insights  # Default real_age=25 for testing
 
 # Age Analysis
 def analyze_image(image_path):
@@ -95,12 +105,16 @@ def calculate_skin_age(real_age, skin_quality_score, skin_factors):
     skin_age = real_age + skin_age_adjustment + skin_quality_adjustment
     return max(1, skin_age)
 
+
+def get_message():
+    return "Hello from FastAPI Backend in app.py!"
+
+
 @app.route('/')
 def index():
     insights = {}
     skin_quality_score = ''
-    return render_template('index.html', insights=insights,skin_quality_score=skin_quality_score)
-
+    return render_template('index.html', insights=insights, skin_quality_score=skin_quality_score)
 
 @app.route('/upload_webcam', methods=['POST'])
 def upload_webcam():
@@ -122,32 +136,13 @@ def upload_webcam():
         img_cv2 = cv2.imread(img_path)
         gray = cv2.cvtColor(img_cv2, cv2.COLOR_BGR2GRAY)
 
-        # Load OpenCV pre-trained face detector
+        # Face Detection
         face_cascade = cv2.CascadeClassifier(cv2.data.haarcascades + 'haarcascade_frontalface_default.xml')
         faces = face_cascade.detectMultiScale(gray, scaleFactor=1.1, minNeighbors=5, minSize=(100, 100))
 
-        if len(faces) == 0:
-            return jsonify({"error": "No face detected. Please ensure your face is visible in the frame."}), 400
-        elif len(faces) > 1:
-            return jsonify({"error": "Multiple faces detected. Please capture an image with only one person."}), 400
-        
-        # Check if the face is too small or too large (too far or too close)
-        (x, y, w, h) = faces[0]
-        face_area = w * h
-        img_area = img_cv2.shape[0] * img_cv2.shape[1]
+        if len(faces) != 1:
+            return jsonify({"error": "Ensure only one face is visible in the frame."}), 400
 
-        if face_area / img_area < 0.2:  # Face occupies less than 5% of the image
-            return jsonify({"error": "Face too far from the camera. Move closer."}), 400
-        elif face_area / img_area > 0.5:  # Face occupies more than 50% of the image
-            return jsonify({"error": "Face too close to the camera. Step back."}), 400
-
-        # Check brightness (lighting conditions)
-        brightness = np.mean(gray)
-        if brightness < 90:
-            return jsonify({"error": "Low lighting detected. Please improve lighting conditions."}), 400
-        elif brightness > 200:
-            return jsonify({"error": "Overexposed image detected. Reduce lighting or avoid direct sunlight."}), 400
-        
         preprocess_image(img_path)
         real_age = analyze_image(img_path)
         skin_quality_score, insights = analyze_skin_quality(img_path)
@@ -164,7 +159,6 @@ def upload_webcam():
     except Exception as e:
         print("Webcam Upload Error:", str(e))
         return jsonify({"error": str(e)}), 500
-
 
 if __name__ == "__main__":
     app.run(debug=True)

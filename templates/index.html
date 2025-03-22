@@ -163,8 +163,13 @@
         <button id="predict">🔍 Predict Age</button>
         <h3 id="result"></h3>
     </div>
-    
+    <button id="result_page">
+        <a href="http://localhost:4321/results"> 
+        Get Result
+        </a>
+    </button>
     <div id="insights"></div>
+    <div id="skin_quality_score"></div>
     
     <script>
         const video = document.getElementById('video');
@@ -175,7 +180,8 @@
         const insightsDiv = document.getElementById('insights');
         const context = canvas.getContext('2d');
         const capturedImage = document.getElementById('capturedImage');
-    
+        const skin_quality_score= document.getElementById('skin_quality_score');
+
         navigator.mediaDevices.getUserMedia({ video: true })
             .then(stream => { video.srcObject = stream; })
             .catch(err => console.error("Camera access denied", err));
@@ -209,6 +215,8 @@
             } else {
                 result.innerHTML = `✅ Real Age: <b>${data.real_age}</b>, Skin Age: <b>${data.skin_age}</b>`;
                 insightsDiv.innerHTML = "<h3>Skin Insights:</h3>" + Object.entries(data.insights).map(([key, value]) => `<p><b>${key.replace(/_/g, ' ')}:</b> ${value}</p>`).join('');
+
+                skin_quality_score.innerHTML= `Skin Score:${data.skin_quality_score}`;
             }
         });
     </script>
