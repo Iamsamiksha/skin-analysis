@@ -8,14 +8,49 @@ from flask import Flask, render_template, request, jsonify
 from deepface import DeepFace
 from werkzeug.utils import secure_filename
 from flask import make_response
+from fastapi import FastAPI
+from fastapi.middleware.cors import CORSMiddleware
+import app  # Importing app.py
+from flask import Flask, render_template, request, jsonify
+from flask_cors import CORS
 
-app = Flask(__name__)
+from fastapi import FastAPI
+from fastapi.middleware.cors import CORSMiddleware
+from fastapi.responses import JSONResponse
+
+app = FastAPI()
+
+# CORS Middleware
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["http://localhost:4321"],  # Update in production
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
+
+# Define route for message
+@app.get("/api/message")
+async def get_message():
+    insights = {}
+    skin_quality_score = ''
+    return JSONResponse(content={"insights": insights, "skin_quality_score": skin_quality_score})
+
+if __name__ == "__main__":
+    import uvicorn
+    uvicorn.run(app, host="127.0.0.1", port=8000)
+
+# Allowed file extensions
 
 # Allowed file extensions
 ALLOWED_EXTENSIONS = {'png', 'jpg', 'jpeg'}
+
+# Upload folder
 UPLOAD_FOLDER = 'uploads'
-app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
+
+# Ensure the upload folder exists
 os.makedirs(UPLOAD_FOLDER, exist_ok=True)
+
 
 def allowed_file(filename):
     return '.' in filename and filename.rsplit('.', 1)[1].lower() in ALLOWED_EXTENSIONS
