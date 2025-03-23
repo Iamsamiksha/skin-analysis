@@ -7,6 +7,7 @@ import numpy as np
 from flask import Flask, render_template, request, jsonify
 from deepface import DeepFace
 from werkzeug.utils import secure_filename
+from flask import make_response
 
 app = Flask(__name__)
 
@@ -31,6 +32,51 @@ def preprocess_image(image_path):
     except Exception as e:
         print("Preprocessing Error:", str(e))
 
+
+def upload_webcam():
+         image = Image.open(BytesIO(img_bytes)).convert("RGB")
+         img_path = os.path.join(app.config['UPLOAD_FOLDER'], 'captured_image.jpg')
+         image.save(img_path, format='JPEG')
+ 
+         # Load the image for face detection
+         img_cv2 = cv2.imread(img_path)
+         gray = cv2.cvtColor(img_cv2, cv2.COLOR_BGR2GRAY)
+ 
+         # Load OpenCV pre-trained face detector
+         face_cascade = cv2.CascadeClassifier(cv2.data.haarcascades + 'haarcascade_frontalface_default.xml')
+         faces = face_cascade.detectMultiScale(gray, scaleFactor=1.1, minNeighbors=5, minSize=(100, 100))
+ 
+         if len(faces) == 0:
+             return jsonify({"error": "No face detected. Please ensure your face is visible in the frame."}), 400
+         elif len(faces) > 1:
+             return jsonify({"error": "Multiple faces detected. Please capture an image with only one person."}), 400
+         
+         # Check if the face is too small or too large (too far or too close)
+         (x, y, w, h) = faces[0]
+         face_area = w * h
+         img_area = img_cv2.shape[0] * img_cv2.shape[1]
+ 
+         if face_area / img_area < 0.2:  # Face occupies less than 5% of the image
+             return jsonify({"error": "Face too far from the camera. Move closer."}), 400
+         elif face_area / img_area > 0.5:  # Face occupies more than 50% of the image
+             return jsonify({"error": "Face too close to the camera. Step back."}), 400
+ 
+         # Check brightness (lighting conditions)
+         brightness = np.mean(gray)
+         if brightness < 90:
+             return jsonify({"error": "Low lighting detected. Please improve lighting conditions."}), 400
+         elif brightness > 200:
+             return jsonify({"error": "Overexposed image detected. Reduce lighting or avoid direct sunlight."}), 400
+ 
+         preprocess_image(img_path)
+         real_age = analyze_image(img_path)
+         skin_quality_score, insights = analyze_skin_quality(img_path)
+         skin_age = calculate_skin_age(real_age, skin_quality_score, skin_factors)
+         
+         return jsonify({"real_age": real_age, "skin_quality_score": skin_quality_score, "skin_age": skin_age, "insights": insights, "image_path": img_path})
+ 
+        
+         
 # Skin Quality Analysis
 def calculate_skin_quality(dark_circles, wrinkles, evenness, pigmentation, real_age):
     age_factor = (real_age ** 2) / 200  # Non-linear age impact
@@ -118,47 +164,77 @@ def index():
 
 @app.route('/upload_webcam', methods=['POST'])
 def upload_webcam():
-    try:
-        data = request.get_json()
-        img_data = data.get('image')
-        skin_factors = data.get('skin_factors', {})
-        
-        if not img_data:
-            return jsonify({"error": "No image data received"}), 400
-        
-        header, encoded = img_data.split(",", 1)
-        img_bytes = base64.b64decode(encoded)
-        image = Image.open(BytesIO(img_bytes)).convert("RGB")
-        img_path = os.path.join(app.config['UPLOAD_FOLDER'], 'captured_image.jpg')
-        image.save(img_path, format='JPEG')
+     try:
+         data = request.get_json()
+         img_data = data.get('image')
+         skin_factors = data.get('skin_factors', {})
+ 
+         if not img_data:
+             return jsonify({"error": "No image data received"}), 400
+ 
+         header, encoded = img_data.split(",", 1)
+         img_bytes = base64.b64decode(encoded)
+         image = Image.open(BytesIO(img_bytes)).convert("RGB")
+         img_path = os.path.join(app.config['UPLOAD_FOLDER'], 'captured_image.jpg')
+         image.save(img_path, format='JPEG')
+ 
+         # Load the image for face detection
+         img_cv2 = cv2.imread(img_path)
+         gray = cv2.cvtColor(img_cv2, cv2.COLOR_BGR2GRAY)
+ 
+         # Load OpenCV pre-trained face detector
+         face_cascade = cv2.CascadeClassifier(cv2.data.haarcascades + 'haarcascade_frontalface_default.xml')
+         faces = face_cascade.detectMultiScale(gray, scaleFactor=1.1, minNeighbors=5, minSize=(100, 100))
+ 
+         img_area = img_cv2.shape[0] * img_cv2.shape[1]
+ 
+         # If no face is detected, check if the image is too close by detecting large contours
+         if len(faces) == 0:
+             _, thresh = cv2.threshold(gray, 80, 255, cv2.THRESH_BINARY)
+             contours, _ = cv2.findContours(thresh, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
+             for contour in contours:
+                 contour_area = cv2.contourArea(contour)
+                 if contour_area / img_area > 0.70:
+                     return jsonify({"error": "Face too close to the camera. Step back."}), 400
+             return jsonify({"error": "No face detected. Please ensure your face is visible in the frame."}), 400
+ 
+         if len(faces) > 1:
+             return jsonify({"error": "Multiple faces detected. Please capture an image with only one person."}), 400
+         
+         # Check if the face is too small or too large (too far or too close)
+         (x, y, w, h) = faces[0]
+         face_area = w * h
+ 
+         if face_area / img_area < 0.20:
+             return jsonify({"error": "Face too far from the camera. Move closer."}), 400
+         
+         if face_area / img_area > 0.75:
+             return jsonify({"error": "Face too close to the camera. Step back."}), 400
+ 
+         # Check brightness (lighting conditions)
+         brightness = np.mean(gray)
+         if brightness < 90:
+             return jsonify({"error": "Low lighting detected. Please improve lighting conditions."}), 400
+         elif brightness > 150:
+             return jsonify({"error": "Overexposed image detected. Reduce lighting or avoid direct sunlight."}), 400
+ 
+         preprocess_image(img_path)
+         real_age = analyze_image(img_path)
+         skin_quality_score, insights = analyze_skin_quality(img_path)
+         skin_age = calculate_skin_age(real_age, skin_quality_score, skin_factors)
+         
+         return jsonify({
+             "real_age": real_age,
+             "skin_quality_score": skin_quality_score,
+             "skin_age": skin_age,
+             "insights": insights,
+             "image_path": img_path
+         })
+ 
+     except Exception as e:
+         print("Webcam Upload Error:", str(e))
+         return jsonify({"error": str(e)}), 500
 
-        # Load the image for face detection
-        img_cv2 = cv2.imread(img_path)
-        gray = cv2.cvtColor(img_cv2, cv2.COLOR_BGR2GRAY)
-
-        # Face Detection
-        face_cascade = cv2.CascadeClassifier(cv2.data.haarcascades + 'haarcascade_frontalface_default.xml')
-        faces = face_cascade.detectMultiScale(gray, scaleFactor=1.1, minNeighbors=5, minSize=(100, 100))
-
-        if len(faces) != 1:
-            return jsonify({"error": "Ensure only one face is visible in the frame."}), 400
-
-        preprocess_image(img_path)
-        real_age = analyze_image(img_path)
-        skin_quality_score, insights = analyze_skin_quality(img_path)
-        skin_age = calculate_skin_age(real_age, skin_quality_score, skin_factors)
-
-        return jsonify({
-            "real_age": real_age,
-            "skin_quality_score": skin_quality_score,
-            "skin_age": skin_age,
-            "insights": insights,
-            "image_path": img_path
-        })
-
-    except Exception as e:
-        print("Webcam Upload Error:", str(e))
-        return jsonify({"error": str(e)}), 500
 
 if __name__ == "__main__":
     app.run(debug=True)
