@@ -8,49 +8,14 @@ from flask import Flask, render_template, request, jsonify
 from deepface import DeepFace
 from werkzeug.utils import secure_filename
 from flask import make_response
-from fastapi import FastAPI
-from fastapi.middleware.cors import CORSMiddleware
-import app  # Importing app.py
-from flask import Flask, render_template, request, jsonify
-from flask_cors import CORS
 
-from fastapi import FastAPI
-from fastapi.middleware.cors import CORSMiddleware
-from fastapi.responses import JSONResponse
-
-app = FastAPI()
-
-# CORS Middleware
-app.add_middleware(
-    CORSMiddleware,
-    allow_origins=["http://localhost:4321"],  # Update in production
-    allow_credentials=True,
-    allow_methods=["*"],
-    allow_headers=["*"],
-)
-
-# Define route for message
-@app.get("/api/message")
-async def get_message():
-    insights = {}
-    skin_quality_score = ''
-    return JSONResponse(content={"insights": insights, "skin_quality_score": skin_quality_score})
-
-if __name__ == "__main__":
-    import uvicorn
-    uvicorn.run(app, host="127.0.0.1", port=8000)
-
-# Allowed file extensions
+app = Flask(__name__)
 
 # Allowed file extensions
 ALLOWED_EXTENSIONS = {'png', 'jpg', 'jpeg'}
-
-# Upload folder
 UPLOAD_FOLDER = 'uploads'
-
-# Ensure the upload folder exists
+app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
 os.makedirs(UPLOAD_FOLDER, exist_ok=True)
-
 
 def allowed_file(filename):
     return '.' in filename and filename.rsplit('.', 1)[1].lower() in ALLOWED_EXTENSIONS
@@ -93,7 +58,7 @@ def upload_webcam():
  
          if face_area / img_area < 0.2:  # Face occupies less than 5% of the image
              return jsonify({"error": "Face too far from the camera. Move closer."}), 400
-         elif face_area / img_area > 0.5:  # Face occupies more than 50% of the image
+         elif face_area / img_area > 0.6:  # Face occupies more than 50% of the image
              return jsonify({"error": "Face too close to the camera. Step back."}), 400
  
          # Check brightness (lighting conditions)
