@@ -77,7 +77,15 @@ def analyze_skin_quality(image_path):
 # Age Analysis
 def analyze_image(image_path):
     try:
-        analysis = DeepFace.analyze(img_path=image_path, actions=["age"], detector_backend="retinaface", enforce_detection=True)
+        # Convert the image to a proper format before passing it to DeepFace
+        image = cv2.imread(image_path)
+        if image is None:
+            print("Error: Image not loaded properly.")
+            return None
+
+        # Ensure DeepFace does not receive a KerasTensor
+        analysis = DeepFace.analyze(img_path=image_path, actions=["age"], detector_backend="retinaface", enforce_detection=False)
+
         if isinstance(analysis, list) and len(analysis) > 0:
             real_age = analysis[0].get("age", "Not detected")
             if isinstance(real_age, int):
@@ -87,6 +95,7 @@ def analyze_image(image_path):
     except Exception as e:
         print("Analysis error:", str(e))
         return None
+
 
 # Calculate Skin Age
 def calculate_skin_age(real_age, skin_quality_score, skin_factors):
@@ -135,6 +144,9 @@ def upload_webcam():
  
          # Load the image for face detection
          img_cv2 = cv2.imread(img_path)
+         if img_cv2 is None:
+             return jsonify({"error": "Failed to read the uploaded image."}), 400
+
          gray = cv2.cvtColor(img_cv2, cv2.COLOR_BGR2GRAY)
  
          # Load OpenCV pre-trained face detector
