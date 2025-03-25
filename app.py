@@ -11,14 +11,14 @@ app = Flask(__name__)
 
 # Allowed file extensions
 ALLOWED_EXTENSIONS = {'png', 'jpg', 'jpeg'}
-UPLOAD_FOLDER = '/tmp'
+UPLOAD_FOLDER = '/tmp'  # Suitable for temporary files
 app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
-os.makedirs(UPLOAD_FOLDER, exist_ok=True)
+os.makedirs(UPLOAD_FOLDER, exist_ok=True)  # Ensure the directory exists
 
 def allowed_file(filename):
     return '.' in filename and filename.rsplit('.', 1)[1].lower() in ALLOWED_EXTENSIONS
 
-# Preprocess Image
+# Preprocess Image (No changes, but keep try-except)
 def preprocess_image(image_path):
     try:
         image = Image.open(image_path).convert("RGB")
@@ -30,9 +30,9 @@ def preprocess_image(image_path):
     except Exception as e:
         print("Preprocessing Error:", str(e))
 
-# Skin Quality Analysis
+# Skin Quality Analysis (No major changes needed)
 def calculate_skin_quality(dark_circles, wrinkles, evenness, pigmentation, real_age):
-    age_factor = (real_age ** 2) / 200  # Non-linear age impact
+    age_factor = (real_age ** 2) / 200
     skin_quality_score = max(0, 100 - (
         0.25 * dark_circles +
         0.25 * wrinkles +
@@ -48,62 +48,46 @@ def analyze_skin_quality(image_path):
     blur = cv2.GaussianBlur(gray, (5, 5), 0)
     edges = cv2.Canny(blur, 50, 150)
 
-    # Dark Circles and Dark Spots Detection
     dark_areas = np.sum(gray < 50) / (gray.size) * 100
-
-    # Fine Lines and Wrinkles Detection
     wrinkle_intensity = np.sum(edges) / (edges.size * 255) * 100
-
-    # Evenness (Standard Deviation of Intensity)
     evenness = np.std(gray)
-
-    # Pigmentation (Variance in Color)
     lab = cv2.cvtColor(image, cv2.COLOR_BGR2LAB)
     l_channel, a_channel, b_channel = cv2.split(lab)
     pigmentation = np.std(a_channel) + np.std(b_channel)
 
     insights = {
-        "dark_circles": "Mild dark circles" if dark_areas < 20 else "Noticeable dark circles" if dark_areas < 30 else "Prominent dark circles",
-        "wrinkles": "Smooth skin" if wrinkle_intensity < 15 else "Few fine lines" if wrinkle_intensity < 25 else "Visible wrinkles",
-        "evenness": "Even skin tone" if evenness < 80 else "Slight unevenness" if evenness < 100 else "Noticeable uneven skin tone",
-        "pigmentation": "Minimal pigmentation" if pigmentation < 20 else "Moderate pigmentation" if pigmentation < 40 else "High pigmentation"
+        "dark_circles": "Mild" if dark_areas < 20 else "Noticeable" if dark_areas < 30 else "Prominent",
+        "wrinkles": "Smooth" if wrinkle_intensity < 15 else "Few lines" if wrinkle_intensity < 25 else "Visible",
+        "evenness": "Even" if evenness < 80 else "Slight unevenness" if evenness < 100 else "Noticeable unevenness",
+        "pigmentation": "Minimal" if pigmentation < 20 else "Moderate" if pigmentation < 40 else "High"
     }
-    # Dummy value for real_age, it's going to be overwritten
+    # Dummy value, to be overwritten
     return calculate_skin_quality(dark_areas, wrinkle_intensity, evenness, pigmentation, 0), insights
 
 
-# Age Analysis (MODIFIED to subtract 23)
+# Age Analysis (Subtract 18, handle no face)
 def analyze_image(image_path):
     image = cv2.imread(image_path)
     gray = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
-
-    # Load OpenCV pre-trained face detector
     face_cascade = cv2.CascadeClassifier(cv2.data.haarcascades + 'haarcascade_frontalface_default.xml')
-    faces = face_cascade.detectMultiScale(gray, scaleFactor=1.1, minNeighbors=6, minSize=(80, 80), flags=cv2.CASCADE_SCALE_IMAGE)
+    faces = face_cascade.detectMultiScale(gray, 1.1, 6, minSize=(80, 80), flags=cv2.CASCADE_SCALE_IMAGE)
 
     if len(faces) > 0:
-        # For simplicity, use the first detected face
         (x, y, w, h) = faces[0]
         face_img = gray[y:y+h, x:x+w]
-
-        # Basic age estimation based on wrinkle intensity (very rudimentary)
         edges = cv2.Canny(face_img, 30, 100)
         wrinkle_intensity = np.sum(edges) / (edges.size * 255) * 100
-
-        # This is a VERY basic and inaccurate age estimation.  Needs a proper model.
-        estimated_age = 20 + int(wrinkle_intensity)  # Crude estimation
-        modified_age = estimated_age - 18 # SUBTRACT 23
-
-        return max(1, min(modified_age, 80))  # Ensure between 1 and 80
-
+        estimated_age = 20 + int(wrinkle_intensity)
+        modified_age = estimated_age - 18  # Subtract 18
+        return max(1, min(modified_age, 80))  # Keep within 1-80
     else:
         print("No face detected for age analysis.")
-        return -1  # Return -1 if no face is detected
+        return -1  # Return -1 if no face detected
 
-# Calculate Skin Age
+# Calculate Skin Age (Handle invalid real_age)
 def calculate_skin_age(real_age, skin_quality_score, skin_factors):
     if not isinstance(real_age, (int, float)) or real_age <= 0:
-        return -1 # Return -1 to indicate invalid input
+        return -1 # Return -1 for invalid input
 
     adjustments = {
         "sun_exposure": {"very_low": -1, "low": 0, "moderate": 1, "high": 2, "very_high": 3},
@@ -117,7 +101,6 @@ def calculate_skin_age(real_age, skin_quality_score, skin_factors):
 
     skin_age = real_age + skin_age_adjustment + skin_quality_adjustment
     return max(1, skin_age)  # Ensure skin_age is at least 1
-
 
 @app.route('/')
 def index():
@@ -133,7 +116,7 @@ def upload_webcam():
         skin_factors = data.get('skin_factors', {})
 
         if not img_data:
-            return jsonify({"error": "No image data received"}), 400
+            return jsonify({"error": "No image data"}), 400
 
         header, encoded = img_data.split(",", 1)
         img_bytes = base64.b64decode(encoded)
@@ -141,22 +124,19 @@ def upload_webcam():
         img_path = os.path.join(app.config['UPLOAD_FOLDER'], 'captured_image.jpg')
         image.save(img_path, format='JPEG')
 
-        # --- Face Detection and Quality Checks ---
         img_cv2 = cv2.imread(img_path)
         if img_cv2 is None:
-            return jsonify({"error": "Failed to read the uploaded image."}), 400
+            return jsonify({"error": "Failed to read image"}), 400
 
         gray = cv2.cvtColor(img_cv2, cv2.COLOR_BGR2GRAY)
         face_cascade = cv2.CascadeClassifier(cv2.data.haarcascades + 'haarcascade_frontalface_default.xml')
-        faces = face_cascade.detectMultiScale(
-            gray, scaleFactor=1.1, minNeighbors=6, minSize=(80, 80), flags=cv2.CASCADE_SCALE_IMAGE
-        )
+        faces = face_cascade.detectMultiScale(gray, 1.1, 6, minSize=(80, 80), flags=cv2.CASCADE_SCALE_IMAGE)
         img_area = img_cv2.shape[0] * img_cv2.shape[1]
 
         error_response = None
 
         if len(faces) > 1:
-            error_response = jsonify({"error": "Multiple faces detected."}), 400
+            error_response = jsonify({"error": "Multiple faces"}), 400
         elif len(faces) == 0:
             _, thresh = cv2.threshold(gray, 80, 255, cv2.THRESH_BINARY)
             contours, _ = cv2.findContours(thresh, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
@@ -165,30 +145,29 @@ def upload_webcam():
                 max_contour = max(contours, key=cv2.contourArea)
                 perimeter = cv2.arcLength(max_contour, True)
                 if max_contour_area / img_area > 0.70 and perimeter > 200:
-                    error_response = jsonify({"error": "Face too close."}), 400
+                    error_response = jsonify({"error": "Face too close"}), 400
             if error_response is None:
-                error_response = jsonify({"error": "No face detected."}), 400
+                error_response = jsonify({"error": "No face"}), 400
         elif len(faces) == 1:
             (x, y, w, h) = faces[0]
             face_area = w * h
             if face_area / img_area < 0.20:
-                error_response = jsonify({"error": "Face too far."}), 400
+                error_response = jsonify({"error": "Face too far"}), 400
             elif face_area / img_area > 0.75:
-                error_response = jsonify({"error": "Face too close."}), 400
+                error_response = jsonify({"error": "Face too close"}), 400
 
         if error_response is None:
             brightness = np.mean(gray)
             if brightness < 90:
-                error_response = jsonify({"error": "Too dark."}), 400
+                error_response = jsonify({"error": "Too dark"}), 400
             elif brightness > 250:
-                error_response = jsonify({"error": "Too bright."}), 400
+                error_response = jsonify({"error": "Too bright"}), 400
 
         if error_response:
             return error_response
 
-        # --- Analysis ---
         preprocess_image(img_path)
-        real_age = analyze_image(img_path)  # Now subtracts 23
+        real_age = analyze_image(img_path)  # Subtracts 18
         skin_quality_score, insights = analyze_skin_quality(img_path)
         skin_age = calculate_skin_age(real_age, skin_quality_score, skin_factors)
 
@@ -202,7 +181,7 @@ def upload_webcam():
 
     except Exception as e:
         print("Webcam Upload Error:", str(e))
-        return jsonify({"error": str(e)}), 500
+        return jsonify({"error": str(e)}), 500 # More specific error
 
 if __name__ == "__main__":
     app.run(debug=True)
