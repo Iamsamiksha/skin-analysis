@@ -1,4 +1,15 @@
 import os
+
+# Disable GPU to avoid CUDA errors
+os.environ["CUDA_VISIBLE_DEVICES"] = "-1"
+
+# Optional: Limit TensorFlow memory growth to avoid crashes
+import tensorflow as tf
+tf.config.set_logical_device_configuration(
+    tf.config.list_physical_devices('CPU')[0],
+    [tf.config.LogicalDeviceConfiguration()]
+)
+import os
 import base64
 from io import BytesIO
 from PIL import Image, ImageEnhance

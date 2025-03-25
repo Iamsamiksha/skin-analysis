@@ -1,3 +1,4 @@
+
 Flask
 numpy
 opencv-python
@@ -5,3 +6,4 @@ pillow
 deepface
 werkzeug
 gunicorn
+
