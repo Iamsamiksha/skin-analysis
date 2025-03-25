@@ -1,7 +1,7 @@
 Flask
 numpy
-opencv-python
 pillow
 deepface
 werkzeug
 gunicorn
+opencv-python-headless  # Correct: Headless version for deployment
