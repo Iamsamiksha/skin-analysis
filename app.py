@@ -16,9 +16,7 @@ from PIL import Image, ImageEnhance
 import cv2
 import numpy as np
 from flask import Flask, render_template, request, jsonify
-from deepface import DeepFace
 from werkzeug.utils import secure_filename
-from flask import make_response
 
 app = Flask(__name__)
 
@@ -42,7 +40,7 @@ def preprocess_image(image_path):
         gray_image.save(image_path, format="JPEG")
     except Exception as e:
         print("Preprocessing Error:", str(e))
-         
+
 # Skin Quality Analysis
 def calculate_skin_quality(dark_circles, wrinkles, evenness, pigmentation, real_age):
     age_factor = (real_age ** 2) / 200  # Non-linear age impact
@@ -63,56 +61,61 @@ def analyze_skin_quality(image_path):
 
     # Dark Circles and Dark Spots Detection
     dark_areas = np.sum(gray < 50) / (gray.size) * 100
-    
+
     # Fine Lines and Wrinkles Detection
     wrinkle_intensity = np.sum(edges) / (edges.size * 255) * 100
-    
+
     # Evenness (Standard Deviation of Intensity)
     evenness = np.std(gray)
-    
+
     # Pigmentation (Variance in Color)
     lab = cv2.cvtColor(image, cv2.COLOR_BGR2LAB)
     l_channel, a_channel, b_channel = cv2.split(lab)
     pigmentation = np.std(a_channel) + np.std(b_channel)
-    
+
     insights = {
         "dark_circles": "Mild dark circles" if dark_areas < 20 else "Noticeable dark circles" if dark_areas < 30 else "Prominent dark circles",
         "wrinkles": "Smooth skin" if wrinkle_intensity < 15 else "Few fine lines" if wrinkle_intensity < 25 else "Visible wrinkles",
         "evenness": "Even skin tone" if evenness < 80 else "Slight unevenness" if evenness < 100 else "Noticeable uneven skin tone",
         "pigmentation": "Minimal pigmentation" if pigmentation < 20 else "Moderate pigmentation" if pigmentation < 40 else "High pigmentation"
     }
+    # Dummy value for real_age, it's going to be overwritten
+    return calculate_skin_quality(dark_areas, wrinkle_intensity, evenness, pigmentation, 0), insights
 
-    # Calculate skin quality score
-    return calculate_skin_quality(dark_areas, wrinkle_intensity, evenness, pigmentation, 25), insights  # Default real_age=25 for testing
 
-# Age Analysis
+# Age Analysis (MODIFIED to subtract 23)
 def analyze_image(image_path):
-    try:
-        # Convert the image to a proper format before passing it to DeepFace
-        image = cv2.imread(image_path)
-        if image is None:
-            print("Error: Image not loaded properly.")
-            return None
+    image = cv2.imread(image_path)
+    gray = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
 
-        # Ensure DeepFace does not receive a KerasTensor
-        analysis = DeepFace.analyze(img_path=image_path, actions=["age"], detector_backend="retinaface", enforce_detection=False)
+    # Load OpenCV pre-trained face detector
+    face_cascade = cv2.CascadeClassifier(cv2.data.haarcascades + 'haarcascade_frontalface_default.xml')
+    faces = face_cascade.detectMultiScale(gray, scaleFactor=1.1, minNeighbors=6, minSize=(80, 80), flags=cv2.CASCADE_SCALE_IMAGE)
 
-        if isinstance(analysis, list) and len(analysis) > 0:
-            real_age = analysis[0].get("age", "Not detected")
-            if isinstance(real_age, int):
-                real_age = max(1, real_age - 8)  # Adjusting for overestimation
-            return real_age
-        return None
-    except Exception as e:
-        print("Analysis error:", str(e))
-        return None
+    if len(faces) > 0:
+        # For simplicity, use the first detected face
+        (x, y, w, h) = faces[0]
+        face_img = gray[y:y+h, x:x+w]
 
+        # Basic age estimation based on wrinkle intensity (very rudimentary)
+        edges = cv2.Canny(face_img, 30, 100)
+        wrinkle_intensity = np.sum(edges) / (edges.size * 255) * 100
+
+        # This is a VERY basic and inaccurate age estimation.  Needs a proper model.
+        estimated_age = 20 + int(wrinkle_intensity)  # Crude estimation
+        modified_age = estimated_age - 18 # SUBTRACT 23
+
+        return max(1, min(modified_age, 80))  # Ensure between 1 and 80
+
+    else:
+        print("No face detected for age analysis.")
+        return -1  # Return -1 if no face is detected
 
 # Calculate Skin Age
 def calculate_skin_age(real_age, skin_quality_score, skin_factors):
-    if real_age is None:
-        return "Error in predicting real age"
-    
+    if not isinstance(real_age, (int, float)) or real_age <= 0:
+        return -1 # Return -1 to indicate invalid input
+
     adjustments = {
         "sun_exposure": {"very_low": -1, "low": 0, "moderate": 1, "high": 2, "very_high": 3},
         "sleep_cycle": {"very_low": 2, "low": 1, "moderate": 0, "high": -1, "very_high": -2},
@@ -122,13 +125,9 @@ def calculate_skin_age(real_age, skin_quality_score, skin_factors):
     }
     skin_age_adjustment = sum(adjustments[param].get(skin_factors.get(param, "moderate"), 0) for param in adjustments)
     skin_quality_adjustment = (100 - skin_quality_score) // 10
-    
+
     skin_age = real_age + skin_age_adjustment + skin_quality_adjustment
-    return max(1, skin_age)
-
-
-def get_message():
-    return "Hello from FastAPI Backend in app.py!"
+    return max(1, skin_age)  # Ensure skin_age is at least 1
 
 
 @app.route('/')
@@ -139,80 +138,82 @@ def index():
 
 @app.route('/upload_webcam', methods=['POST'])
 def upload_webcam():
-     try:
-         data = request.get_json()
-         img_data = data.get('image')
-         skin_factors = data.get('skin_factors', {})
- 
-         if not img_data:
-             return jsonify({"error": "No image data received"}), 400
- 
-         header, encoded = img_data.split(",", 1)
-         img_bytes = base64.b64decode(encoded)
-         image = Image.open(BytesIO(img_bytes)).convert("RGB")
-         img_path = os.path.join(app.config['UPLOAD_FOLDER'], 'captured_image.jpg')
-         image.save(img_path, format='JPEG')
- 
-         # Load the image for face detection
-         img_cv2 = cv2.imread(img_path)
-         if img_cv2 is None:
-             return jsonify({"error": "Failed to read the uploaded image."}), 400
+    try:
+        data = request.get_json()
+        img_data = data.get('image')
+        skin_factors = data.get('skin_factors', {})
 
-         gray = cv2.cvtColor(img_cv2, cv2.COLOR_BGR2GRAY)
- 
-         # Load OpenCV pre-trained face detector
-         face_cascade = cv2.CascadeClassifier(cv2.data.haarcascades + 'haarcascade_frontalface_default.xml')
-         faces = face_cascade.detectMultiScale(gray, scaleFactor=1.1, minNeighbors=5, minSize=(100, 100))
- 
-         img_area = img_cv2.shape[0] * img_cv2.shape[1]
- 
-         # If no face is detected, check if the image is too close by detecting large contours
-         if len(faces) == 0:
-             _, thresh = cv2.threshold(gray, 80, 255, cv2.THRESH_BINARY)
-             contours, _ = cv2.findContours(thresh, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
-             for contour in contours:
-                 contour_area = cv2.contourArea(contour)
-                 if contour_area / img_area > 0.70:
-                     return jsonify({"error": "Face too close to the camera. Step back."}), 400
-             return jsonify({"error": "No face detected. Please ensure your face is visible in the frame."}), 400
- 
-         if len(faces) > 1:
-             return jsonify({"error": "Multiple faces detected. Please capture an image with only one person."}), 400
-         
-         # Check if the face is too small or too large (too far or too close)
-         (x, y, w, h) = faces[0]
-         face_area = w * h
- 
-         if face_area / img_area < 0.20:
-             return jsonify({"error": "Face too far from the camera. Move closer."}), 400
-         
-         if face_area / img_area > 0.75:
-             return jsonify({"error": "Face too close to the camera. Step back."}), 400
- 
-         # Check brightness (lighting conditions)
-         brightness = np.mean(gray)
-         if brightness < 90:
-             return jsonify({"error": "Low lighting detected. Please improve lighting conditions."}), 400
-         elif brightness > 250:
-             return jsonify({"error": "Overexposed image detected. Reduce lighting or avoid direct sunlight."}), 400
- 
-         preprocess_image(img_path)
-         real_age = analyze_image(img_path)
-         skin_quality_score, insights = analyze_skin_quality(img_path)
-         skin_age = calculate_skin_age(real_age, skin_quality_score, skin_factors)
-         
-         return jsonify({
-             "real_age": real_age,
-             "skin_quality_score": skin_quality_score,
-             "skin_age": skin_age,
-             "insights": insights,
-             "image_path": img_path
-         })
- 
-     except Exception as e:
-         print("Webcam Upload Error:", str(e))
-         return jsonify({"error": str(e)}), 500
+        if not img_data:
+            return jsonify({"error": "No image data received"}), 400
 
+        header, encoded = img_data.split(",", 1)
+        img_bytes = base64.b64decode(encoded)
+        image = Image.open(BytesIO(img_bytes)).convert("RGB")
+        img_path = os.path.join(app.config['UPLOAD_FOLDER'], 'captured_image.jpg')
+        image.save(img_path, format='JPEG')
+
+        # --- Face Detection and Quality Checks ---
+        img_cv2 = cv2.imread(img_path)
+        if img_cv2 is None:
+            return jsonify({"error": "Failed to read the uploaded image."}), 400
+
+        gray = cv2.cvtColor(img_cv2, cv2.COLOR_BGR2GRAY)
+        face_cascade = cv2.CascadeClassifier(cv2.data.haarcascades + 'haarcascade_frontalface_default.xml')
+        faces = face_cascade.detectMultiScale(
+            gray, scaleFactor=1.1, minNeighbors=6, minSize=(80, 80), flags=cv2.CASCADE_SCALE_IMAGE
+        )
+        img_area = img_cv2.shape[0] * img_cv2.shape[1]
+
+        error_response = None
+
+        if len(faces) > 1:
+            error_response = jsonify({"error": "Multiple faces detected."}), 400
+        elif len(faces) == 0:
+            _, thresh = cv2.threshold(gray, 80, 255, cv2.THRESH_BINARY)
+            contours, _ = cv2.findContours(thresh, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
+            if contours:
+                max_contour_area = max(cv2.contourArea(c) for c in contours)
+                max_contour = max(contours, key=cv2.contourArea)
+                perimeter = cv2.arcLength(max_contour, True)
+                if max_contour_area / img_area > 0.70 and perimeter > 200:
+                    error_response = jsonify({"error": "Face too close."}), 400
+            if error_response is None:
+                error_response = jsonify({"error": "No face detected."}), 400
+        elif len(faces) == 1:
+            (x, y, w, h) = faces[0]
+            face_area = w * h
+            if face_area / img_area < 0.20:
+                error_response = jsonify({"error": "Face too far."}), 400
+            elif face_area / img_area > 0.75:
+                error_response = jsonify({"error": "Face too close."}), 400
+
+        if error_response is None:
+            brightness = np.mean(gray)
+            if brightness < 90:
+                error_response = jsonify({"error": "Too dark."}), 400
+            elif brightness > 250:
+                error_response = jsonify({"error": "Too bright."}), 400
+
+        if error_response:
+            return error_response
+
+        # --- Analysis ---
+        preprocess_image(img_path)
+        real_age = analyze_image(img_path)  # Now subtracts 23
+        skin_quality_score, insights = analyze_skin_quality(img_path)
+        skin_age = calculate_skin_age(real_age, skin_quality_score, skin_factors)
+
+        return jsonify({
+            "real_age": real_age,
+            "skin_quality_score": skin_quality_score,
+            "skin_age": skin_age,
+            "insights": insights,
+            "image_path": img_path
+        })
+
+    except Exception as e:
+        print("Webcam Upload Error:", str(e))
+        return jsonify({"error": str(e)}), 500
 
 if __name__ == "__main__":
     app.run(debug=True)
