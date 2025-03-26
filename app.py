@@ -151,7 +151,7 @@ def upload_webcam():
         elif len(faces) == 1:
             (x, y, w, h) = faces[0]
             face_area = w * h
-            if face_area / img_area < 0.20:
+            if face_area / img_area < 0.10:
                 error_response = jsonify({"error": "Face too far"}), 400
             elif face_area / img_area > 0.75:
                 error_response = jsonify({"error": "Face too close"}), 400
