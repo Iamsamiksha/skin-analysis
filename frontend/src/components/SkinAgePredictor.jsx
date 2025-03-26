@@ -1,4 +1,6 @@
 import { useEffect, useRef, useState } from "react";
+import Results from "./Results"; // Import Results Component
+import './SkinAgePredictor.css'; // Import Styles
 
 const SkinAgePredictor = () => {
   const videoRef = useRef(null);
@@ -11,9 +13,10 @@ const SkinAgePredictor = () => {
     stress_level: "moderate",
     water_intake: "moderate",
   });
-  const [result, setResult] = useState("");
+  const [predictedAge, setPredictedAge] = useState("");
   const [insights, setInsights] = useState({});
   const [skinScore, setSkinScore] = useState("");
+  const [showResults, setShowResults] = useState(false);
 
   useEffect(() => {
     navigator.mediaDevices.getUserMedia({ video: true })
@@ -44,11 +47,15 @@ const SkinAgePredictor = () => {
     const data = await response.json();
 
     if (data.error) {
-      setResult(`❌ Error: ${data.error}`);
+      setPredictedAge(`❌ Error: ${data.error}`);
+      setInsights({});
+      setSkinScore("");
+      setShowResults(false);
     } else {
-      setResult(`✅ Real Age: ${data.real_age}, Skin Age: ${data.skin_age}`);
+      setPredictedAge(`✅ Real Age: ${data.real_age}, Skin Age: ${data.skin_age}`);
       setInsights(data.insights);
       setSkinScore(data.skin_quality_score);
+      setShowResults(false);
     }
   };
 
@@ -56,23 +63,26 @@ const SkinAgePredictor = () => {
     setSkinFactors({ ...skinFactors, [e.target.name]: e.target.value });
   };
 
-  return (
-    <div className="container">
-      <h2>Skin Age & Real Age Prediction</h2>
+  const handleShowResults = () => {
+    setShowResults(true);
+  };
 
+  return (
+    <div className="predictor-container">
+      <h2>Capture Your Image</h2>
       <div id="video-container">
         <video ref={videoRef} width="400" height="300" autoPlay></video>
       </div>
-      <button onClick={captureImage}>📸 Capture</button>
+      <button onClick={captureImage} className="capture-button">📸 Capture</button>
 
       <canvas ref={canvasRef} width="400" height="300" style={{ display: "none" }}></canvas>
-      <img ref={capturedImageRef} style={{ display: "none" }} />
+      <img ref={capturedImageRef} style={{ display: "none" }} alt="Captured" />
 
       <h3>Skin Factors</h3>
       {["sun_exposure", "sleep_cycle", "diet_level", "stress_level", "water_intake"].map((factor) => (
         <div className="factor-container" key={factor}>
           <label>{factor.replace("_", " ")}:</label>
-          <select name={factor} value={skinFactors[factor]} onChange={handleChange}>
+          <select name={factor} value={skinFactors[factor]} onChange={handleChange} className="factor-select">
             <option value="very_low">Very Low</option>
             <option value="low">Low</option>
             <option value="moderate">Moderate</option>
@@ -82,21 +92,18 @@ const SkinAgePredictor = () => {
         </div>
       ))}
 
-      <button onClick={handlePrediction}>🔍 Predict Age</button>
-      <h3>{result}</h3>
+      <button onClick={handlePrediction} className="predict-button">🔍 Predict Age</button>
+      {predictedAge && (
+        <div className="predicted-age-card">
+          <h3>{predictedAge}</h3>
+        </div>
+      )}
 
-      <button>
-        <a href="http://localhost:4321/results">Get Result</a>
+      <button onClick={handleShowResults} disabled={!skinScore} className="results-button">
+        Get Results
       </button>
 
-      <div>
-        <h3>Skin Insights:</h3>
-        {Object.entries(insights).map(([key, value]) => (
-          <p key={key}><b>{key.replace(/_/g, " ")}:</b> {value}</p>
-        ))}
-      </div>
-
-      <div>Skin Score: {skinScore}</div>
+      {showResults && <Results result={predictedAge} insights={insights} skinScore={skinScore} />}
     </div>
   );
 };
