@@ -1,90 +1,84 @@
 /* SkinAgePredictor.css */
 .predictor-container {
-    background-color: #fff;
-    border-radius: 10px;
-    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-    padding: 20px;
-    width: 500px;
-    margin-bottom: 20px;
-}
-
-.predictor-container h2 {
-    color: #7957a8;
-    margin-bottom: 15px;
-}
-
-#video-container {
-    margin-bottom: 15px;
-}
-
-.capture-button,
-.predict-button {
-    background-color: #c3aed6;
+    background: linear-gradient(to bottom, #4b0082, #6a5acd);
     color: white;
-    padding: 10px 15px;
-    border: none;
-    border-radius: 5px;
-    cursor: pointer;
-    font-size: 14px;
-    transition: background-color 0.3s ease;
+    border-radius: 16px;
+    padding: 24px;
+    width: 550px;
+    margin: auto;
+    text-align: center;
+    box-shadow: 0 8px 16px rgba(0, 0, 0, 0.2);
+}
+
+h2 {
+    font-size: 2em;
+    margin-bottom: 16px;
+}
+
+.video-wrapper video {
+    width: 100%;
+    border-radius: 12px;
+    margin-bottom: 10px;
+}
+
+.captured-image-container {
+    display: flex;
+    justify-content: center;
     margin-top: 10px;
 }
 
-.capture-button:hover,
-.predict-button:hover {
-    background-color: #7957a8;
+.captured-image {
+    width: 80%;
+    max-width: 450px;
+    border-radius: 12px;
+    display: none;
 }
 
-.factor-container {
-    margin-bottom: 10px;
+.capture-button,
+.predict-button,
+.results-button {
+    background: linear-gradient(to right, #6a5acd, #8a2be2);
+    color: white;
+    padding: 12px 20px;
+    border: none;
+    border-radius: 8px;
+    cursor: pointer;
+    font-size: 16px;
+    font-weight: bold;
+    transition: 0.3s;
+    margin-top: 12px;
+}
+
+.capture-button:hover,
+.predict-button:hover,
+.results-button:hover {
+    background: linear-gradient(to right, #8a2be2, #4b0082);
+    transform: scale(1.05);
+}
+
+.factors-grid {
+    display: grid;
+    grid-template-columns: repeat(1, 1fr);
+    gap: 15px;
+    margin-top: 12px;
 }
 
 .factor-container label {
     display: block;
-    margin-bottom: 5px;
-    color: #553980;
+    font-weight: bold;
+    margin-bottom: 6px;
 }
 
-.factor-select {
+.factor-slider {
     width: 100%;
-    padding: 8px;
-    border: 1px solid #ddd;
-    border-radius: 5px;
-    font-size: 14px;
+    accent-color: #8a2be2;
 }
 
-/* Style adjustments for a more compact layout */
-.predictor-container h3 {
-    font-size: 1.2em; /* Slightly smaller heading */
-    margin-top: 15px;    /* Reduced top margin */
-    margin-bottom: 10px;   /* Reduced bottom margin */
-    color: #7957a8;        /* Consistent heading color */
-}
-
-/* Style for the select elements */
-.factor-select {
-    width: 100%;           /* Full width to occupy available space */
-    padding: 8px;           /* Comfortable padding */
-    border: 1px solid #ddd; /* Light border for definition */
-    border-radius: 5px;      /* Softly rounded corners */
-    font-size: 14px;        /* Readable font size */
-    color: #333;            /* Darker text for readability */
-    background-color: #f8f8f8; /* Light background for contrast */
-}
-
-/* Hover state for the select elements */
-.factor-select:hover {
-    border-color: #bbb;     /* Slightly darker border on hover */
-}
-
-/* Focus state for better accessibility */
-.factor-select:focus {
-    border-color: #999;     /* Even darker border on focus */
-    outline: none;          /* Remove default focus outline */
-    box-shadow: 0 0 5px rgba(121, 87, 168, 0.5); /* Soft shadow for focus */
-}
-
-/* Reduced margin for the video container for a tighter layout */
-#video-container {
-    margin-bottom: 10px;
+.predicted-age-card {
+    background: #ffffff;
+    color: #4b0082;
+    padding: 12px;
+    border-radius: 10px;
+    margin-top: 15px;
+    font-weight: bold;
 }
