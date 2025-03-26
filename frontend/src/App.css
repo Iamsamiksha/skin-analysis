@@ -1,42 +1,50 @@
-#root {
-  max-width: 1280px;
-  margin: 0 auto;
-  padding: 2rem;
+/* App.css */
+.app-container {
+  font-family: 'Arial', sans-serif;
+  background-color: #f9f0ff; /* Light lavender background */
+  color: #333;
+  padding: 20px;
+  display: flex;          /* Enable flexbox */
+  flex-direction: column; /* Stack items vertically */
+  align-items: center;    /* Center items horizontally */
+  justify-content: flex-start; /* Align items to the top */
+  min-height: 100vh;      /* Ensure full viewport height */
+  margin: 0 auto;       /* Center horizontally */
+  max-width: 800px;      /* Optional: Limit width */
+}
+
+.app-title {
+  color: #7957a8; /* Darker lavender for headings */
+  margin-bottom: 20px;
+}
+
+.predicted-age-card {
+  background-color: #fff;
+  border-radius: 10px;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+  padding: 15px;
+  margin-bottom: 20px;
   text-align: center;
+  color: #553980;
 }
 
-.logo {
-  height: 6em;
-  padding: 1.5em;
-  will-change: filter;
-  transition: filter 300ms;
-}
-.logo:hover {
-  filter: drop-shadow(0 0 2em #646cffaa);
-}
-.logo.react:hover {
-  filter: drop-shadow(0 0 2em #61dafbaa);
-}
-
-@keyframes logo-spin {
-  from {
-    transform: rotate(0deg);
-  }
-  to {
-    transform: rotate(360deg);
-  }
+.results-button {
+  background-color: #c3aed6; /* Button color */
+  color: white;
+  padding: 10px 20px;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+  font-size: 16px;
+  transition: background-color 0.3s ease;
+  margin-bottom: 20px;
 }
 
-@media (prefers-reduced-motion: no-preference) {
-  a:nth-of-type(2) .logo {
-    animation: logo-spin infinite 20s linear;
-  }
+.results-button:hover {
+  background-color: #7957a8;
 }
 
-.card {
-  padding: 2em;
-}
-
-.read-the-docs {
-  color: #888;
+.results-button:disabled {
+  background-color: #ddd;
+  cursor: not-allowed;
 }

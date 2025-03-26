@@ -1,0 +1,47 @@
+/* Results.css */
+.results-card {
+    background-color: #fff;
+    border-radius: 10px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    padding: 20px;
+    margin-top: 20px;
+    width: 500px;
+}
+
+.results-card h3 {
+    color: #7957a8;
+    margin-bottom: 15px;
+}
+
+.skin-score {
+    margin-top: 20px;
+    font-weight: bold;
+    color: #553980;
+}
+
+.insights-container {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: space-around;
+    margin-top: 15px;
+}
+
+.insight-item {
+    width: 45%;
+    margin-bottom: 15px;
+    text-align: center;
+}
+
+.insight-label {
+    font-weight: bold;
+    color: #553980;
+    margin-bottom: 5px;
+}
+
+.donut-chart {
+    margin-bottom: 10px;
+}
+
+.insight-value {
+    color: #333;
+}
