@@ -114,3 +114,44 @@
         font-size: 14px;
     }
 }
+.age-card {
+    background-color: #efebfc;
+    border-radius: 10px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    padding: 20px;
+    margin-top: 20px;
+    width: 100%;
+    box-sizing: border-box;
+    text-align: center; /* Center the content */
+}
+
+.age-card h3 {
+    color: #4d39ff;
+    margin-bottom: 15px;
+    font-size: 1.5rem;
+}
+
+.age-card p {
+    margin-bottom: 10px; /* Reduced space between the label and the age */
+}
+
+.age-card p:first-of-type { /* Style for Real Age container */
+  margin-bottom: 15px;
+}
+
+.age-card p:last-of-type { /* Style for Skin Age container */
+  margin-bottom: 0;
+}
+
+.age-card p span {
+    display: block;  /* Ensure label is above the value */
+    font-size: 0.8rem;  /* Smaller label text */
+    color: #777;      /* Greyed out label */
+    margin-bottom: 3px;
+}
+
+.age-card p strong {
+    display: block;  /* Ensure value is below the label */
+    font-size: 1.8rem; /* Larger age value */
+    color: #333;      /* Darker value text */
+}

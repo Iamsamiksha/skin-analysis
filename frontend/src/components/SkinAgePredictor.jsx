@@ -120,13 +120,27 @@ const SkinAgePredictor = () => {
             {["sun_exposure", "sleep_cycle", "diet_level", "stress_level", "water_intake"].map((factor) => (
                 <div className="factor-container" key={factor}>
                     <label>{factor.replace("_", " ")}:</label>
-                    <select name={factor} value={skinFactors[factor]} onChange={handleChange} className="factor-select">
-                        <option value="very_low">Very Low</option>
-                        <option value="low">Low</option>
-                        <option value="moderate">Moderate</option>
-                        <option value="high">High</option>
-                        <option value="very_high">Very High</option>
-                    </select>
+                    <div className="slider-container">
+                        {/* Slider Input */}
+                        <input
+                            type="range"
+                            name={factor}
+                            min="0"
+                            max="4"
+                            step="1"
+                            value={skinFactors[factor]}
+                            onChange={(e) => handleChange(e, factor)}
+                            className="factor-slider"
+                        />
+                        {/* Static Labels Below */}
+                        <div className="slider-labels">
+                            <span>Very Low</span>
+                            <span>Low</span>
+                            <span>Moderate</span>
+                            <span>High</span>
+                            <span>Very High</span>
+                        </div>
+                    </div>
                 </div>
             ))}
 
