@@ -18,8 +18,8 @@ const BarChart = ({ yourData, averageData }) => {
                   Math.round(yourData?.evenness / 2) || 0,
                   Math.round(yourData?.pigmentation) || 0
                 ],
-                backgroundColor: '#d8bfe9',  // Light Lavender
-                borderColor: '#7957a8',      // Darker Lavender
+                backgroundColor: '#8b63f7',  // Light Lavender
+                borderColor: '#04000f',      // Darker Lavender
                 borderWidth: 1,
                 borderRadius: 5,
             },
@@ -31,8 +31,8 @@ const BarChart = ({ yourData, averageData }) => {
                     averageData?.evenness/2 || 0,
                     averageData?.pigmentation || 0
                 ],
-                backgroundColor: '#c3aed6',  // Medium Lavender
-                borderColor: '#553980',      // Darker Purple
+                backgroundColor: '#632ff5',  // Medium Lavender
+                borderColor: '#04000f',      // Darker Purple
                 borderWidth: 1,
                 borderRadius: 5,
             }

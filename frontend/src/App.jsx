@@ -6,7 +6,7 @@ import './App.css'; // Import CSS
 function App() {
   return (
     <div className="app-container">
-      <h1 className="app-title">Skin Age & Real Age Prediction</h1>
+      <h1 className="app-title">SkinVision AI</h1>
       <SkinAgePredictor />
     </div>
   );

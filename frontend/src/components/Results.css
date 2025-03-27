@@ -10,7 +10,7 @@
 }
 
 .results-card h3 {
-    color: #7957a8;
+    color: #4d39ff; /* Changed Theme Color */
     margin-bottom: 15px;
     text-align: center;
     font-size: 1.5rem;
@@ -19,7 +19,7 @@
 .skin-score {
     margin-top: 20px;
     font-weight: bold;
-    color: #553980;
+    color: #4d39ff;  /* Changed Theme Color */
     text-align: center;
     font-size: 1.2rem;
 }
@@ -53,7 +53,7 @@
 /* Insight Label */
 .insight-label {
     font-weight: bold;
-    color: #553980;
+    color: #4d39ff;  /* Changed Theme Color */
     margin-bottom: 5px;
 }
 
@@ -83,7 +83,7 @@
     padding: 12px 18px;
     font-size: 16px;
     font-weight: bold;
-    background: linear-gradient(45deg, #7957a8, #4A90E2);
+    background: linear-gradient(45deg, #4d39ff, #4A90E2); /* Changed Theme Color */
     color: white;
     border: none;
     border-radius: 8px;
@@ -93,7 +93,7 @@
 }
 
 .download-btn:hover {
-    background: linear-gradient(45deg, #4A90E2, #7957a8);
+    background: linear-gradient(45deg, #4A90E2, #4d39ff); /* Changed Theme Color */
     transform: scale(1.05);
 }
 
@@ -146,12 +146,12 @@
 .age-card p span {
     display: block;  /* Ensure label is above the value */
     font-size: 0.8rem;  /* Smaller label text */
-    color: #777;      /* Greyed out label */
+    color: #4d39ff;      /* Changed Theme Color */
     margin-bottom: 3px;
 }
 
 .age-card p strong {
     display: block;  /* Ensure value is below the label */
     font-size: 1.8rem; /* Larger age value */
-    color: #333;      /* Darker value text */
+    color: #4d39ff;      /* Changed Theme Color */
 }
