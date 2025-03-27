@@ -15,15 +15,14 @@ const SkinAgePredictor = () => {
     });
     const [predictedAge, setPredictedAge] = useState("");
     const [insights, setInsights] = useState({});
-    const [numericInsights, setNumericInsights] = useState({});
+    const [numericInsights, setNumericInsights] = useState({});  // Add numeric insights
     const [skinScore, setSkinScore] = useState("");
     const [showResults, setShowResults] = useState(false);
     const [showPredicted, setShowPredicted] = useState(false);
     const [predictionData, setPredictionData] = useState({});
-    const [imageCaptured, setImageCaptured] = useState(false);
 
     useEffect(() => {
-        navigator.mediaDevices.getUserMedia({ video: { width: 480, height: 360 } })
+        navigator.mediaDevices.getUserMedia({ video: true })
             .then(stream => {
                 videoRef.current.srcObject = stream;
             })
@@ -40,13 +39,10 @@ const SkinAgePredictor = () => {
 
         capturedImageRef.current.src = imageData;
         capturedImageRef.current.style.display = "block";
-        document.querySelector(".captured-image-container").style.display = "flex"; 
-        setImageCaptured(true);
+        document.querySelector(".captured-image-container").style.display = "flex"; // Show the preview dynamically
     };
 
     const handlePrediction = async () => {
-        if (!imageCaptured) return alert("Please capture an image first!");
-
         const canvas = canvasRef.current;
         const imageData = canvas.toDataURL("image/jpeg");
 
@@ -74,10 +70,12 @@ const SkinAgePredictor = () => {
                 setPredictedAge(`✅ Real Age: ${data.real_age}, Skin Age: ${data.skin_age}`);
                 setPredictionData({ real_age: data.real_age, skin_age: data.skin_age });
                 setInsights(data.insights);
-                setNumericInsights(data.numeric_insights);
+                setNumericInsights(data.numeric_insights); // Set numeric insights
                 setSkinScore(data.skin_quality_score);
                 setShowResults(true);
                 setShowPredicted(true);
+                console.log("Data.Insights", data.insights);
+                console.log("Data.NumericInsights", data.numeric_insights);
             }
         } catch (error) {
             console.error("Prediction error:", error);
@@ -96,37 +94,31 @@ const SkinAgePredictor = () => {
 
     return (
         <div className="predictor-container">
-            <h2>Skin Age Predictor</h2>
-
+            <h2>Capture Your Image</h2>
             <div id="video-container">
                 <video ref={videoRef} width="400" height="300" autoPlay></video>
             </div>
-
             <button onClick={captureImage} className="capture-button">📸 Capture</button>
 
             <canvas ref={canvasRef} width="400" height="300" style={{ display: "none" }}></canvas>
             <div className="captured-image-container">
                 <img ref={capturedImageRef} style={{ display: "none" }} alt="Captured" />
             </div>
-
-            <h3>Adjust Skin Factors</h3>
-            <div className="factors-grid">
-                {Object.keys(skinFactors).map((factor) => (
-                    <div className="factor-container" key={factor}>
-                        <label>{factor.replace("_", " ")}:</label>
-                        <select name={factor} value={skinFactors[factor]} onChange={handleChange} className="factor-select">
-                            <option value="very_low">Very Low</option>
-                            <option value="low">Low</option>
-                            <option value="moderate">Moderate</option>
-                            <option value="high">High</option>
-                            <option value="very_high">Very High</option>
-                        </select>
-                    </div>
-                ))}
-            </div>
+            <h3>Skin Factors</h3>
+            {["sun_exposure", "sleep_cycle", "diet_level", "stress_level", "water_intake"].map((factor) => (
+                <div className="factor-container" key={factor}>
+                    <label>{factor.replace("_", " ")}:</label>
+                    <select name={factor} value={skinFactors[factor]} onChange={handleChange} className="factor-select">
+                        <option value="very_low">Very Low</option>
+                        <option value="low">Low</option>
+                        <option value="moderate">Moderate</option>
+                        <option value="high">High</option>
+                        <option value="very_high">Very High</option>
+                    </select>
+                </div>
+            ))}
 
             <button onClick={handlePrediction} className="predict-button">🔍 Predict Age</button>
-
             {showPredicted && (
                 <div className="predicted-age-card">
                     <h3>{predictedAge}</h3>
