@@ -1,6 +1,7 @@
 import React from 'react';
 import './Results.css';
 import { generateDonutChart } from "../chartUtils.js";
+import BarChart from "../components/BarChart.jsx";
 
 const Results = ({ result, insights, numericInsights, skinScore, showResults }) => {
     console.log("Result Prop", result);
@@ -29,7 +30,7 @@ const Results = ({ result, insights, numericInsights, skinScore, showResults }) 
                             );
                         })}
                     </div>
-
+                    <BarChart/>
                     <div className="skin-score">Skin Score: {skinScore}</div>
                 </>
             )}
