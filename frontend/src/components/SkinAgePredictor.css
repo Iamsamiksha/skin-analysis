@@ -1,61 +1,74 @@
-/* SkinAgePredictor.css */
-.predictor-container {
-    background: linear-gradient(to bottom, #4b0082, #6a5acd);
-    color: white;
-    border-radius: 16px;
-    padding: 24px;
-    width: 550px;
-    margin: auto;
-    text-align: center;
-    box-shadow: 0 8px 16px rgba(0, 0, 0, 0.2);
-}
 
-h2 {
-    font-size: 2em;
-    margin-bottom: 16px;
-}
-
-.video-wrapper video {
-    width: 100%;
-    border-radius: 12px;
-    margin-bottom: 10px;
-}
 
 .captured-image-container {
-    display: flex;
+    display: none; /* Initially hidden to remove extra space */
     justify-content: center;
-    margin-top: 10px;
+    align-items: center;
+    margin-bottom: 15px;
 }
 
-.captured-image {
-    width: 80%;
-    max-width: 450px;
-    border-radius: 12px;
-    display: none;
+.captured-image-container img {
+    max-width: 100%;
+    max-height: 300px;
+    height: auto;
+    object-fit: contain;
+    border-radius: 10px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+    margin-top: 15px; /* Added top margin */
 }
 
+#video-container {
+    margin-bottom: 15px;
+    text-align: center; /* Center the video */
+}
+
+.predictor-container {
+    background-color: #fff;
+    border-radius: 10px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    padding: 20px;
+    width: 700px; /* Adjust the width as needed */
+    margin: 0 auto; /* Center horizontally */
+    margin-bottom: 20px;
+    overflow: hidden; /* Prevent content from overflowing */
+    display: flex;
+    flex-direction: column;
+    justify-content: space-around;
+    align-items: center;
+}
+
+.predictor-container h2 {
+    color: #7957a8;
+    margin-bottom: 15px;
+    text-align: center;
+}
+
+/* Buttons */
 .capture-button,
 .predict-button,
 .results-button {
-    background: linear-gradient(to right, #6a5acd, #8a2be2);
+    background-color: #c3aed6;
     color: white;
     padding: 12px 20px;
     border: none;
     border-radius: 8px;
     cursor: pointer;
-    font-size: 16px;
-    font-weight: bold;
-    transition: 0.3s;
-    margin-top: 12px;
+    font-size: 14px;
+    transition: background-color 0.3s ease;
+    margin-top: 10px;
+    display: block; /* Make them block-level elements */
+    margin-left: auto; /* Push them to the right */
+    margin-right: auto; /* Push them to the left */
+    width: fit-content; /* Only take up the space they need */
 }
 
 .capture-button:hover,
 .predict-button:hover,
 .results-button:hover {
-    background: linear-gradient(to right, #8a2be2, #4b0082);
-    transform: scale(1.05);
+    background-color: #7957a8;
 }
 
+/* Factors Grid */
 .factors-grid {
     display: grid;
     grid-template-columns: repeat(1, 1fr);
@@ -69,11 +82,36 @@ h2 {
     margin-bottom: 6px;
 }
 
+/* Factor Slider */
 .factor-slider {
     width: 100%;
-    accent-color: #8a2be2;
+    padding: 8px;
+    border: 1px solid #ddd;
+    border-radius: 5px;
+    font-size: 14px;
 }
 
+/* Compact Layout for Predictor */
+.predictor-container h3 {
+    font-size: 1.2em; /* Slightly smaller heading */
+    margin-top: 15px; /* Reduced top margin */
+    margin-bottom: 10px; /* Reduced bottom margin */
+    color: #7957a8; /* Consistent heading color */
+    text-align: center;
+}
+
+/* Select Elements */
+.factor-select {
+    width: 100%;
+    padding: 8px;
+    border: 1px solid #ddd;
+    border-radius: 5px;
+    font-size: 14px;
+    color: #333;
+    background-color: #f8f8f8;
+}
+
+/* Predicted Age Card */
 .predicted-age-card {
     background: #ffffff;
     color: #4b0082;
