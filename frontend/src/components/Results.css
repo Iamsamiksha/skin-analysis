@@ -4,15 +4,16 @@
     box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
     padding: 20px;
     margin-top: 20px;
-    width: 100%; /* Take up full width of parent */
-    box-sizing: border-box; /* Include padding and border in width */
-    overflow: hidden; /* Prevent the donut from overflowing */
+    width: 100%;
+    box-sizing: border-box;
+    overflow: hidden;
 }
 
 .results-card h3 {
     color: #7957a8;
     margin-bottom: 15px;
     text-align: center;
+    font-size: 1.5rem;
 }
 
 .skin-score {
@@ -20,43 +21,47 @@
     font-weight: bold;
     color: #553980;
     text-align: center;
+    font-size: 1.2rem;
 }
 
+/* Insights Section */
 .insights-container {
     display: flex;
-    flex-wrap: nowrap; /* Prevent wrapping to the next line */
-    overflow-x: auto;   /* Enable horizontal scrolling */
-    /*justify-content: space-around; !* Distribute items evenly *!*/
+    flex-wrap: nowrap;
+    overflow-x: auto;
     margin-top: 15px;
-    padding-bottom: 10px; /* Add some padding for the scrollbar */
+    padding-bottom: 10px;
 }
 
-/* Style for each insight item */
-/* Style for each insight item */
+/* Each Insight Item */
 .insight-item {
-    width: 20%;        /* Fixed width for each item */
-    flex: 0 0 auto;      /* Don't grow or shrink, base size is the width */
-    margin-right: 20px;  /* Space between items */
+    width: 20%;
+    flex: 0 0 auto;
+    margin-right: 20px;
     text-align: center;
+    background: #f9f9f9;
+    padding: 10px;
+    border-radius: 8px;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
 }
 
-/* Style for the last insight item to remove right margin */
+/* Last Item - Remove Right Margin */
 .insight-item:last-child {
     margin-right: 0;
 }
 
-/* Style for the label above the chart */
+/* Insight Label */
 .insight-label {
     font-weight: bold;
     color: #553980;
     margin-bottom: 5px;
 }
 
-/* Style for the donut chart */
+/* Donut Chart */
 .donut-chart {
     margin-bottom: 10px;
-    width: 120px;       /* Adjust width for desired chart size */
-    height: 120px;      /* Adjust height for desired chart size */
+    width: 120px;
+    height: 120px;
     margin-left: auto;
     margin-right: auto;
 }
@@ -66,8 +71,46 @@
     height: 100%;
 }
 
-/* Style for the value below the chart */
+/* Insight Value */
 .insight-value {
     color: #333;
 }
 
+/* Styling for the Download Button */
+.download-btn {
+    display: block;
+    margin: 20px auto;
+    padding: 12px 18px;
+    font-size: 16px;
+    font-weight: bold;
+    background: linear-gradient(45deg, #7957a8, #4A90E2);
+    color: white;
+    border: none;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: all 0.3s ease-in-out;
+    text-align: center;
+}
+
+.download-btn:hover {
+    background: linear-gradient(45deg, #4A90E2, #7957a8);
+    transform: scale(1.05);
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+    .insights-container {
+        flex-wrap: wrap;
+        justify-content: center;
+    }
+
+    .insight-item {
+        width: 45%;
+        margin-bottom: 15px;
+    }
+
+    .download-btn {
+        width: 80%;
+        font-size: 14px;
+    }
+}

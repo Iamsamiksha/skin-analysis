@@ -1,20 +1,27 @@
-import React from 'react';
-import './Results.css';
+import React, { useRef } from "react";
+import "./Results.css";
 import { generateDonutChart } from "../chartUtils.js";
 import BarChart from "../components/BarChart";
+import jsPDF from "jspdf";
+import html2canvas from "html2canvas";
 
 const Results = ({ result, insights, numericInsights, skinScore, showResults, averageData, realData }) => {
-    console.log("Result Prop", result);
-    console.log("Insights Prop", insights);
-    console.log("Numeric Insights Prop", numericInsights);
-    console.log("Skin Score Prop", skinScore);
-    console.log("Show Results", showResults);
-    console.log("AverageData", averageData);
-     console.log("realData",realData)
+    const resultRef = useRef(); // Reference for capturing the PDF
+
+    const downloadPDF = () => {
+        const input = resultRef.current;
+        html2canvas(input, { scale: 2 }).then((canvas) => {
+            const imgData = canvas.toDataURL("image/png");
+            const pdf = new jsPDF("p", "mm", "a4");
+            const imgWidth = 190; // A4 width
+            const imgHeight = (canvas.height * imgWidth) / canvas.width;
+            pdf.addImage(imgData, "PNG", 10, 10, imgWidth, imgHeight);
+            pdf.save("SkinVision_Results.pdf");
+        });
+    };
 
     return (
-        <div className="results-card">
-           
+        <div ref={resultRef} className="results-card">
             <div className="age-card">
                 <h3>Prediction Result</h3>
                 <p>Real Age: {result.real_age}</p>
@@ -26,7 +33,7 @@ const Results = ({ result, insights, numericInsights, skinScore, showResults, av
                     <h3>Skin Insights:</h3>
                     <div className="insights-container">
                         {Object.entries(insights).map(([key, value]) => {
-                            const numericValue = numericInsights[key]; // ***This is the key line***
+                            const numericValue = numericInsights[key];
                             return (
                                 <div className="insight-item" key={key}>
                                     <div className="insight-label"><b>{key.replace(/_/g, " ")}:</b></div>
@@ -36,10 +43,13 @@ const Results = ({ result, insights, numericInsights, skinScore, showResults, av
                             );
                         })}
                     </div>
-                    <BarChart yourData={realData} averageData={averageData}/>
+                    <BarChart yourData={realData} averageData={averageData} />
                     <div className="skin-score">Skin Score: {skinScore}</div>
                 </>
             )}
+
+            {/* Download Button */}
+            <button className="download-btn" onClick={downloadPDF}>Download as PDF</button>
         </div>
     );
 };
