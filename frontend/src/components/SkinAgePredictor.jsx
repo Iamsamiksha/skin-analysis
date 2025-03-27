@@ -115,34 +115,40 @@ const SkinAgePredictor = () => {
             <canvas ref={canvasRef} width="400" height="300" style={{ display: "none" }}></canvas>
             <div className="captured-image-container">
                 <img ref={capturedImageRef} style={{ display: "none" }} alt="Captured" />
-            </div>
-            <h3>Skin Factors</h3>
-            {["sun_exposure", "sleep_cycle", "diet_level", "stress_level", "water_intake"].map((factor) => (
-                <div className="factor-container" key={factor}>
-                    <label>{factor.replace("_", " ")}:</label>
-                    <div className="slider-container">
-                        {/* Slider Input */}
-                        <input
-                            type="range"
-                            name={factor}
-                            min="0"
-                            max="4"
-                            step="1"
-                            value={skinFactors[factor]}
-                            onChange={(e) => handleChange(e, factor)}
-                            className="factor-slider"
-                        />
-                        {/* Static Labels Below */}
-                        <div className="slider-labels">
-                            <span>Very Low</span>
-                            <span>Low</span>
-                            <span>Moderate</span>
-                            <span>High</span>
-                            <span>Very High</span>
-                        </div>
-                    </div>
                 </div>
-            ))}
+<h3>Skin Factors</h3>
+{[
+    { key: "Sun_Exposure", labels: ["Very Low", "Low", "Moderate", "High", "Very High"] },
+    { key: "Sleep_Cycle", labels: ["Very Poor", "Inadequate", "Irregular", "Good", "Excellent"] },
+   { key: "Diet_Level", labels: ["Unhealthy", "Not Balanced", "Moderate", "Healthy", "Excellent"] }
+,
+    { key: "Stress_Level", labels: ["Very High", "High", "Moderate", "Low", "Very Low"] },
+    { key: "Water_Intake", labels: ["Insufficient", "Low", "Moderate", "Adequate", "Well Hydrated"] }
+].map(({ key, labels }) => (
+    <div className="factor-container" key={key}>
+        <label>{key.replace("_", " ")}:</label>
+        <div className="slider-container">
+            {/* Slider Input */}
+            <input
+                type="range"
+                name={key}
+                min="0"
+                max="4"
+                step="1"
+                value={skinFactors[key]}
+                onChange={(e) => handleChange(e, key)}
+                className="factor-slider"
+            />
+            {/* Custom Static Labels Below */}
+            <div className="slider-labels">
+                {labels.map((label, index) => (
+                    <span key={index}>{label}</span>
+                ))}
+            </div>
+        </div>
+    </div>
+))}
+
 
             <button onClick={handlePrediction} className="predict-button">🔍 Predict Age</button>
             {showPredicted && (
