@@ -1,4 +1,4 @@
-/* Revised SkinAgePredictor.css */
+
 
 .captured-image-container {
     display: none; /* Initially hidden to remove extra space */
@@ -17,7 +17,6 @@
     margin-top: 15px; /* Added top margin */
 }
 
-
 #video-container {
     margin-bottom: 15px;
     text-align: center; /* Center the video */
@@ -32,10 +31,10 @@
     margin: 0 auto; /* Center horizontally */
     margin-bottom: 20px;
     overflow: hidden; /* Prevent content from overflowing */
-    display:flex;
+    display: flex;
     flex-direction: column;
     justify-content: space-around;
-    align-items:center;
+    align-items: center;
 }
 
 .predictor-container h2 {
@@ -44,15 +43,15 @@
     text-align: center;
 }
 
-
+/* Buttons */
 .capture-button,
 .predict-button,
 .results-button {
     background-color: #c3aed6;
     color: white;
-    padding: 10px 15px;
+    padding: 12px 20px;
     border: none;
-    border-radius: 5px;
+    border-radius: 8px;
     cursor: pointer;
     font-size: 14px;
     transition: background-color 0.3s ease;
@@ -69,17 +68,22 @@
     background-color: #7957a8;
 }
 
-.factor-container {
-    margin-bottom: 10px;
+/* Factors Grid */
+.factors-grid {
+    display: grid;
+    grid-template-columns: repeat(1, 1fr);
+    gap: 15px;
+    margin-top: 12px;
 }
 
 .factor-container label {
     display: block;
-    margin-bottom: 5px;
-    color: #553980;
+    font-weight: bold;
+    margin-bottom: 6px;
 }
 
-.factor-select {
+/* Factor Slider */
+.factor-slider {
     width: 100%;
     padding: 8px;
     border: 1px solid #ddd;
@@ -87,36 +91,32 @@
     font-size: 14px;
 }
 
-/* Style adjustments for a more compact layout */
+/* Compact Layout for Predictor */
 .predictor-container h3 {
     font-size: 1.2em; /* Slightly smaller heading */
-    margin-top: 15px;    /* Reduced top margin */
-    margin-bottom: 10px;   /* Reduced bottom margin */
-    color: #7957a8;        /* Consistent heading color */
+    margin-top: 15px; /* Reduced top margin */
+    margin-bottom: 10px; /* Reduced bottom margin */
+    color: #7957a8; /* Consistent heading color */
     text-align: center;
 }
 
-/* Style for the select elements */
+/* Select Elements */
 .factor-select {
-    width: 100%;           /* Full width to occupy available space */
-    padding: 8px;           /* Comfortable padding */
-    border: 1px solid #ddd; /* Light border for definition */
-    border-radius: 5px;      /* Softly rounded corners */
-    font-size: 14px;        /* Readable font size */
-    color: #333;            /* Darker text for readability */
-    background-color: #f8f8f8; /* Light background for contrast */
+    width: 100%;
+    padding: 8px;
+    border: 1px solid #ddd;
+    border-radius: 5px;
+    font-size: 14px;
+    color: #333;
+    background-color: #f8f8f8;
 }
 
-/* Hover state for the select elements */
-.factor-select:hover {
-    border-color: #bbb;     /* Slightly darker border on hover */
+/* Predicted Age Card */
+.predicted-age-card {
+    background: #ffffff;
+    color: #4b0082;
+    padding: 12px;
+    border-radius: 10px;
+    margin-top: 15px;
+    font-weight: bold;
 }
-
-/* Focus state for better accessibility */
-.factor-select:focus {
-    border-color: #999;     /* Even darker border on focus */
-    outline: none;          /* Remove default focus outline */
-    box-shadow: 0 0 5px rgba(121, 87, 168, 0.5); /* Soft shadow for focus */
-}
-
-/* Reduced margin for the video container for a tighter layout */
