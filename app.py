@@ -125,13 +125,13 @@ def calculate_skin_age(real_age, skin_quality_score, skin_factors):
 
 def get_average_data_for_age(real_age):
     if 0 <= real_age <= 15:
-        return {"wrinkles": 3, "dark_circles": 4, "pigmentation": 15, "evenness": 50}  # Example values
+        return {"Wrinkles": 3, "Dark_Circles": 4, "Pigmentation": 15, "Evenness": 50}  # Example values
     elif 16 <= real_age <= 30:
-        return {"wrinkles": 7, "dark_circles": 6, "pigmentation": 25, "evenness": 58}  # Example values
+        return {"Wrinkles": 7, "Dark_circles": 6, "Pigmentation": 25, "Evenness": 58}  # Example values
     elif 31 <= real_age <= 45:
-        return {"wrinkles": 12, "dark_circles": 9, "pigmentation": 20, "evenness": 70}  # Example values
+        return {"Wrinkles": 12, "Dark_circles": 9, "Pigmentation": 20, "Evenness": 70}  # Example values
     else:
-        return {"wrinkles": 15, "dark_circles": 10, "pigmentation": 20, "evenness": 60}  # Example values
+        return {"Wrinkles": 15, "Dark_circles": 10, "Pigmentation": 20, "Evenness": 60}  # Example values
 
 @app.route('/')
 def index():

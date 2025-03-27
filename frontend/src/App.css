@@ -1,8 +1,8 @@
 /* App.css */
 .app-container {
   font-family: 'Arial', sans-serif;
-  background-color: #f9f0ff; /* Light lavender background */
-  color: #333;
+   /* Light lavender background */
+  color: #d4d5fc;
   padding: 20px;
   display: flex;          /* Enable flexbox */
   flex-direction: column; /* Stack items vertically */
@@ -14,7 +14,7 @@
 }
 
 .app-title {
-  color: #7957a8; /* Darker lavender for headings */
+  color: #8358fe; /* Darker lavender for headings */
   margin-bottom: 20px;
 }
 

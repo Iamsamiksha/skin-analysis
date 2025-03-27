@@ -110,14 +110,14 @@ const SkinAgePredictor = () => {
             <div id="video-container">
                 <video ref={videoRef} width="400" height="300" autoPlay></video>
             </div>
-            <button onClick={captureImage} className="capture-button">📸 Capture</button>
+            <button onClick={captureImage} className="capture-button">Capture</button>
 
             <canvas ref={canvasRef} width="400" height="300" style={{ display: "none" }}></canvas>
             <div className="captured-image-container">
                 <img ref={capturedImageRef} style={{ display: "none" }} alt="Captured" />
             </div>
             <h3>Skin Factors</h3>
-            {["sun_exposure", "sleep_cycle", "diet_level", "stress_level", "water_intake"].map((factor) => (
+            {["Sun_Exposure", "Sleep_Cycle", "Diet_Level", "Stress_Level", "Water_Intake"].map((factor) => (
                 <div className="factor-container" key={factor}>
                     <label>{factor.replace("_", " ")}:</label>
                     <div className="slider-container">
@@ -144,7 +144,7 @@ const SkinAgePredictor = () => {
                 </div>
             ))}
 
-            <button onClick={handlePrediction} className="predict-button">🔍 Predict Age</button>
+            <button onClick={handlePrediction} className="predict-button">Predict Age</button>
             {showPredicted && (
                 <div className="predicted-age-card">
                     <h3>{predictedAge}</h3>
