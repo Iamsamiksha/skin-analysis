@@ -119,10 +119,7 @@
     border-radius: 10px;
     margin-top: 15px;
     font-weight: bold;
-}
-
-
-.factor-container {
+}.factor-container {
     display: flex;
     flex-direction: column;
     align-items: center;
@@ -151,8 +148,8 @@
     -webkit-appearance: none;
     appearance: none;
     height: 8px;
-    background: linear-gradient(90deg, #7957a8, #4A90E2);
-    border-radius: 5px;
+    background: linear-gradient(90deg, #4d39ff, #8358fe);
+    border-radius: 50px;  /* Rounded ends */
     outline: none;
     transition: 0.3s ease-in-out;
     cursor: pointer;
@@ -164,14 +161,14 @@
     appearance: none;
     width: 20px;
     height: 20px;
-    background-color: #553980;
+    background-color: #ffffff; /* White color for the moving circle */
     border-radius: 50%;
     cursor: pointer;
     transition: 0.2s;
 }
 
 .factor-slider::-webkit-slider-thumb:hover {
-    background-color: #4A90E2;
+    background-color: #f0f0f0;
 }
 
 /* Static labels below the slider */
@@ -180,7 +177,7 @@
     justify-content: space-between;
     width: 100%;
     font-size: 12px;
-    color: #553980;
+    color: #000000; /* Black labels */
     font-weight: bold;
     margin-top: 5px;
 }
