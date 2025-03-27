@@ -120,3 +120,67 @@
     margin-top: 15px;
     font-weight: bold;
 }
+
+
+.factor-container {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    margin: 15px 0;
+    width: 100%;
+}
+
+.factor-container label {
+    font-weight: bold;
+    margin-bottom: 8px;
+    color: #553980;
+}
+
+.slider-container {
+    position: relative;
+    width: 100%;
+    max-width: 350px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+/* Style for the range slider */
+.factor-slider {
+    width: 100%;
+    -webkit-appearance: none;
+    appearance: none;
+    height: 8px;
+    background: linear-gradient(90deg, #7957a8, #4A90E2);
+    border-radius: 5px;
+    outline: none;
+    transition: 0.3s ease-in-out;
+    cursor: pointer;
+    margin-bottom: 10px;
+}
+
+.factor-slider::-webkit-slider-thumb {
+    -webkit-appearance: none;
+    appearance: none;
+    width: 20px;
+    height: 20px;
+    background-color: #553980;
+    border-radius: 50%;
+    cursor: pointer;
+    transition: 0.2s;
+}
+
+.factor-slider::-webkit-slider-thumb:hover {
+    background-color: #4A90E2;
+}
+
+/* Static labels below the slider */
+.slider-labels {
+    display: flex;
+    justify-content: space-between;
+    width: 100%;
+    font-size: 12px;
+    color: #553980;
+    font-weight: bold;
+    margin-top: 5px;
+}

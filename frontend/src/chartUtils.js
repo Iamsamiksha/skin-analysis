@@ -4,9 +4,9 @@ export const generateDonutChart = (value) => {
     const gap = 2; // Gap between sections, adjust as needed
 
     // Define colors for each segment
-    const color1 = "#d8bfe9"; // Light Lavender
-    const color2 = "#c3aed6"; // Medium Lavender
-    const color3 = "#a29bfe"; // Soft Lavender
+    const color1 = "#4917d1"; // Light Lavender
+    const color2 = "#4d39ff"; // Medium Lavender
+    const color3 = "#6f3cfa"; // Soft Lavender
 
     let needleAngle = 0;
 
