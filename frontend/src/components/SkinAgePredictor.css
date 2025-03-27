@@ -47,7 +47,7 @@
 .capture-button,
 .predict-button,
 .results-button {
-    background-color: #c3aed6;
+    background-color: #4d39ff; /* Changed to the specified color */
     color: white;
     padding: 12px 20px;
     border: none;
@@ -65,7 +65,7 @@
 .capture-button:hover,
 .predict-button:hover,
 .results-button:hover {
-    background-color: #7957a8;
+    background-color: #8358fe;
 }
 
 /* Factors Grid */
