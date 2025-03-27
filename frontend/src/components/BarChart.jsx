@@ -4,51 +4,71 @@ import { Chart as ChartJS, BarElement, CategoryScale, LinearScale, Title, Toolti
 
 ChartJS.register(BarElement, CategoryScale, LinearScale, Title, Tooltip, Legend);
 
-const DATA_COUNT = 7;
-const NUMBER_CFG = { count: DATA_COUNT, min: -100, max: 100 };
+const labels = ['Wrinkles', 'Dark Circles', 'Unevenness', 'Pigmentation'];  // Renamed labels
 
-const labels = Array.from({ length: DATA_COUNT }, (_, i) => `Month ${i + 1}`);
-const generateRandomData = () => Array.from({ length: DATA_COUNT }, () => Math.floor(Math.random() * 200 - 100));
+const BarChart = ({ yourData, averageData }) => {
+    const data = {
+        labels,
+        datasets: [
+            {
+                label: 'Your Data',
+                data: [
+                  Math.round(yourData?.wrinkles) || 0,
+                  Math.round(yourData?.dark_circles) || 0,
+                  Math.round(yourData?.evenness / 2) || 0,
+                  Math.round(yourData?.pigmentation) || 0
+                ],
+                backgroundColor: '#d8bfe9',  // Light Lavender
+                borderColor: '#7957a8',      // Darker Lavender
+                borderWidth: 1,
+                borderRadius: 5,
+            },
+            {
+                label: 'Avg Data of this Age Group',
+                data: [
+                    averageData?.wrinkles || 0,
+                    averageData?.dark_circles || 0,
+                    averageData?.evenness/2 || 0,
+                    averageData?.pigmentation || 0
+                ],
+                backgroundColor: '#c3aed6',  // Medium Lavender
+                borderColor: '#553980',      // Darker Purple
+                borderWidth: 1,
+                borderRadius: 5,
+            }
+        ]
+    };
 
-const data = {
-  labels,
-  datasets: [
-    {
-      label: 'Fully Rounded',
-      data: generateRandomData(),
-      borderColor: 'red',
-      backgroundColor: 'rgba(255, 0, 0, 0.5)',
-      borderWidth: 2,
-      borderRadius: Number.MAX_VALUE,
-      borderSkipped: false,
-    },
-    {
-      label: 'Small Radius',
-      data: generateRandomData(),
-      borderColor: 'blue',
-      backgroundColor: 'rgba(0, 0, 255, 0.5)',
-      borderWidth: 2,
-      borderRadius: 5,
-      borderSkipped: false,
-    }
-  ]
-};
+    const options = {
+        responsive: true,
+        plugins: {
+            legend: {
+                position: 'top',
+                labels: {
+                    color: '#553980'
+                }
+            },
+            title: {
+                display: true,
+                text: 'Skin Analysis Comparison',
+                color: '#7957a8'
+            }
+        },
+        scales: {
+            x: {
+                ticks: {
+                    color: '#553980'
+                }
+            },
+            y: {
+                ticks: {
+                    color: '#553980'
+                }
+            }
+        }
+    };
 
-const options = {
-  responsive: true,
-  plugins: {
-    legend: {
-      position: 'top',
-    },
-    title: {
-      display: true,
-      text: 'Chart.js Bar Chart'
-    }
-  }
-};
-
-const BarChart = () => {
-  return <Bar data={data} options={options} />;
+    return <Bar data={data} options={options} />;
 };
 
 export default BarChart;
