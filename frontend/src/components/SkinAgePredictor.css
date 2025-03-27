@@ -1,24 +1,53 @@
-/* SkinAgePredictor.css */
+/* Revised SkinAgePredictor.css */
+
+.captured-image-container {
+    display: none; /* Initially hidden to remove extra space */
+    justify-content: center;
+    align-items: center;
+    margin-bottom: 15px;
+}
+
+.captured-image-container img {
+    max-width: 100%;
+    max-height: 300px;
+    height: auto;
+    object-fit: contain;
+    border-radius: 10px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+    margin-top: 15px; /* Added top margin */
+}
+
+
+#video-container {
+    margin-bottom: 15px;
+    text-align: center; /* Center the video */
+}
+
 .predictor-container {
     background-color: #fff;
     border-radius: 10px;
     box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
     padding: 20px;
-    width: 500px;
+    width: 700px; /* Adjust the width as needed */
+    margin: 0 auto; /* Center horizontally */
     margin-bottom: 20px;
+    overflow: hidden; /* Prevent content from overflowing */
+    display:flex;
+    flex-direction: column;
+    justify-content: space-around;
+    align-items:center;
 }
 
 .predictor-container h2 {
     color: #7957a8;
     margin-bottom: 15px;
+    text-align: center;
 }
 
-#video-container {
-    margin-bottom: 15px;
-}
 
 .capture-button,
-.predict-button {
+.predict-button,
+.results-button {
     background-color: #c3aed6;
     color: white;
     padding: 10px 15px;
@@ -28,10 +57,15 @@
     font-size: 14px;
     transition: background-color 0.3s ease;
     margin-top: 10px;
+    display: block; /* Make them block-level elements */
+    margin-left: auto; /* Push them to the right */
+    margin-right: auto; /* Push them to the left */
+    width: fit-content; /* Only take up the space they need */
 }
 
 .capture-button:hover,
-.predict-button:hover {
+.predict-button:hover,
+.results-button:hover {
     background-color: #7957a8;
 }
 
@@ -59,6 +93,7 @@
     margin-top: 15px;    /* Reduced top margin */
     margin-bottom: 10px;   /* Reduced bottom margin */
     color: #7957a8;        /* Consistent heading color */
+    text-align: center;
 }
 
 /* Style for the select elements */
@@ -85,6 +120,3 @@
 }
 
 /* Reduced margin for the video container for a tighter layout */
-#video-container {
-    margin-bottom: 10px;
-}

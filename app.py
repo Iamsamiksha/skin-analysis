@@ -58,12 +58,19 @@ def analyze_skin_quality(image_path):
     pigmentation = np.std(a_channel) + np.std(b_channel)
 
     insights = {
-        "dark_circles": "Mild" if dark_areas < 20 else "Noticeable" if dark_areas < 30 else "Prominent",
+        "dark_circles": "Mild" if dark_areas < 20 else "Noticeable" if dark_areas < 25 else "Prominent",
         "wrinkles": "Smooth" if wrinkle_intensity < 15 else "Few lines" if wrinkle_intensity < 25 else "Visible",
-        "evenness": "Even" if evenness < 80 else "Slight unevenness" if evenness < 100 else "Noticeable unevenness",
-        "pigmentation": "Minimal" if pigmentation < 20 else "Moderate" if pigmentation < 40 else "High"
+        "evenness": "Even" if evenness < 80 else "Slight unevenness" if evenness < 90 else "Noticeable unevenness",
+        "pigmentation": "Minimal" if pigmentation < 20 else "Moderate" if pigmentation < 30 else "High"
     }
-    return calculate_skin_quality(dark_areas, wrinkle_intensity, evenness, pigmentation, 0), insights
+    numeric_insights = {
+        "dark_circles": 1 if dark_areas < 10 else 2 if dark_areas < 25 else 3,
+        "wrinkles": 1 if wrinkle_intensity < 10 else 2 if wrinkle_intensity < 25 else 3,
+        "evenness": 1 if evenness < 60 else 2 if evenness < 90 else 3,
+        "pigmentation": 1 if pigmentation < 10 else 2 if pigmentation < 30 else 3
+    }
+
+    return calculate_skin_quality(dark_areas, wrinkle_intensity, evenness, pigmentation, 0), insights, numeric_insights
 
 # Age Analysis
 def analyze_image(image_path):
@@ -123,14 +130,15 @@ def upload_webcam():
 
         preprocess_image(img_path)
         real_age = analyze_image(img_path)
-        skin_quality_score, insights = analyze_skin_quality(img_path)
+        skin_quality_score, insights, numeric_insights = analyze_skin_quality(img_path)  # Unpack
         skin_age = calculate_skin_age(real_age, skin_quality_score, skin_factors)
 
         return jsonify({
             "real_age": real_age,
             "skin_quality_score": skin_quality_score,
             "skin_age": skin_age,
-            "insights": insights
+            "insights": insights,
+            "numeric_insights": numeric_insights
         })
 
     except Exception as e:
