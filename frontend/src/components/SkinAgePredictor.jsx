@@ -20,6 +20,8 @@ const SkinAgePredictor = () => {
     const [showResults, setShowResults] = useState(false);
     const [showPredicted, setShowPredicted] = useState(false);
     const [predictionData, setPredictionData] = useState({});
+    const [averageData, setAverageData] = useState({});
+    const [realData, setRealData] = useState({});
 
     useEffect(() => {
         navigator.mediaDevices.getUserMedia({ video: true })
@@ -66,6 +68,8 @@ const SkinAgePredictor = () => {
                 setSkinScore("");
                 setShowResults(false);
                 setShowPredicted(false);
+                setAverageData({});  // clear average data as well
+                setRealData({});
             } else {
                 setPredictedAge(`✅ Real Age: ${data.real_age}, Skin Age: ${data.skin_age}`);
                 setPredictionData({ real_age: data.real_age, skin_age: data.skin_age });
@@ -74,8 +78,14 @@ const SkinAgePredictor = () => {
                 setSkinScore(data.skin_quality_score);
                 setShowResults(true);
                 setShowPredicted(true);
+                setAverageData(data.average_data);
+                setRealData(data.real_data);
+
                 console.log("Data.Insights", data.insights);
                 console.log("Data.NumericInsights", data.numeric_insights);
+                console.log("Data.AverageData", data.average_data);  // log average data
+                console.log("Data.realData", data.real_data);  // log real data
+
             }
         } catch (error) {
             console.error("Prediction error:", error);
@@ -85,6 +95,8 @@ const SkinAgePredictor = () => {
             setSkinScore("");
             setShowResults(false);
             setShowPredicted(false);
+            setAverageData({});  // clear average data in catch as well
+            setRealData({})
         }
     };
 
@@ -134,8 +146,10 @@ const SkinAgePredictor = () => {
                     result={predictionData}
                     insights={insights}
                     numericInsights={numericInsights}
+                    averageData={averageData}
                     skinScore={skinScore}
                     showResults={showResults}
+                    realData = {realData}
                 />
             )}
         </div>

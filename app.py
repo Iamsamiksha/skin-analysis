@@ -20,15 +20,14 @@ os.makedirs(UPLOAD_FOLDER, exist_ok=True)  # Ensure the directory exists
 def allowed_file(filename):
     return '.' in filename and filename.rsplit('.', 1)[1].lower() in ALLOWED_EXTENSIONS
 
-# Preprocess Image
+# Preprocess Image - DOES NOT SAVE THE GREY IMAGE
 def preprocess_image(image_path):
     try:
         image = Image.open(image_path).convert("RGB")
-        gray_image = image.convert("L")
-        enhancer = ImageEnhance.Contrast(gray_image)
-        gray_image = enhancer.enhance(1.5)
-        gray_image = gray_image.resize((224, 224))
-        gray_image.save(image_path, format="JPEG")
+        enhancer = ImageEnhance.Contrast(image)
+        image = enhancer.enhance(1.5)
+        image = image.resize((224, 224))
+        image.save(image_path, format="JPEG") #Saves processed image over original
     except Exception as e:
         print("Preprocessing Error:", str(e))
 
@@ -55,26 +54,42 @@ def analyze_skin_quality(image_path):
     evenness = np.std(gray)
     lab = cv2.cvtColor(image, cv2.COLOR_BGR2LAB)
     l_channel, a_channel, b_channel = cv2.split(lab)
+
+    print("a_channel std:", np.std(a_channel))
+    print("b_channel std:", np.std(b_channel))
     pigmentation = np.std(a_channel) + np.std(b_channel)
+    print("pigmentation:", pigmentation)
+
 
     insights = {
-        "dark_circles": "Mild" if dark_areas < 20 else "Noticeable" if dark_areas < 25 else "Prominent",
+        "dark_circles": "Mild" if dark_areas < 15 else "Noticeable" if dark_areas < 25 else "Prominent",
         "wrinkles": "Smooth" if wrinkle_intensity < 15 else "Few lines" if wrinkle_intensity < 25 else "Visible",
-        "evenness": "Even" if evenness < 80 else "Slight unevenness" if evenness < 90 else "Noticeable unevenness",
-        "pigmentation": "Minimal" if pigmentation < 20 else "Moderate" if pigmentation < 30 else "High"
+        "evenness": "Even" if evenness < 60 else "Slight unevenness" if evenness < 90 else "Noticeable unevenness",
+        "pigmentation": "Minimal" if pigmentation < 10 else "Moderate" if pigmentation < 30 else "High"
     }
     numeric_insights = {
-        "dark_circles": 1 if dark_areas < 10 else 2 if dark_areas < 25 else 3,
-        "wrinkles": 1 if wrinkle_intensity < 10 else 2 if wrinkle_intensity < 25 else 3,
+        "dark_circles": 1 if dark_areas < 15 else 2 if dark_areas < 25 else 3,
+        "wrinkles": 1 if wrinkle_intensity < 15 else 2 if wrinkle_intensity < 25 else 3,
         "evenness": 1 if evenness < 60 else 2 if evenness < 90 else 3,
         "pigmentation": 1 if pigmentation < 10 else 2 if pigmentation < 30 else 3
     }
 
-    return calculate_skin_quality(dark_areas, wrinkle_intensity, evenness, pigmentation, 0), insights, numeric_insights
+    real_data = {
+        "dark_circles": dark_areas,
+        "wrinkles": wrinkle_intensity,
+        "evenness": evenness,
+        "pigmentation": pigmentation
+    }
+    return calculate_skin_quality(dark_areas, wrinkle_intensity, evenness, pigmentation, 0), insights, numeric_insights, real_data
 
-# Age Analysis
+# Age Analysis - No Changes Needed
 def analyze_image(image_path):
     image = cv2.imread(image_path)
+
+    if image is None:
+        print(f"Error: Could not load image from {image_path}")
+        return -1
+
     gray = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
     face_cascade = cv2.CascadeClassifier(cv2.data.haarcascades + 'haarcascade_frontalface_default.xml')
     faces = face_cascade.detectMultiScale(gray, 1.1, 6, minSize=(80, 80), flags=cv2.CASCADE_SCALE_IMAGE)
@@ -85,12 +100,12 @@ def analyze_image(image_path):
         edges = cv2.Canny(face_img, 30, 100)
         wrinkle_intensity = np.sum(edges) / (edges.size * 255) * 100
         estimated_age = 20 + int(wrinkle_intensity)
-        modified_age = estimated_age - 18  # Subtract 18
+        modified_age = estimated_age - 15  # Subtract 18
         return max(1, min(modified_age, 80))  # Keep within 1-80
     else:
         return -1  # No face detected
 
-# Calculate Skin Age
+# Calculate Skin Age - No changes needed
 def calculate_skin_age(real_age, skin_quality_score, skin_factors):
     if not isinstance(real_age, (int, float)) or real_age <= 0:
         return -1  # Return -1 for invalid input
@@ -107,6 +122,16 @@ def calculate_skin_age(real_age, skin_quality_score, skin_factors):
 
     skin_age = real_age + skin_age_adjustment + skin_quality_adjustment
     return max(1, skin_age)  # Ensure skin_age is at least 1
+
+def get_average_data_for_age(real_age):
+    if 0 <= real_age <= 15:
+        return {"wrinkles": 3, "dark_circles": 4, "pigmentation": 15, "evenness": 50}  # Example values
+    elif 16 <= real_age <= 30:
+        return {"wrinkles": 7, "dark_circles": 6, "pigmentation": 25, "evenness": 58}  # Example values
+    elif 31 <= real_age <= 45:
+        return {"wrinkles": 12, "dark_circles": 9, "pigmentation": 20, "evenness": 70}  # Example values
+    else:
+        return {"wrinkles": 15, "dark_circles": 10, "pigmentation": 20, "evenness": 60}  # Example values
 
 @app.route('/')
 def index():
@@ -128,17 +153,36 @@ def upload_webcam():
         img_path = os.path.join(app.config['UPLOAD_FOLDER'], 'captured_image.jpg')
         image.save(img_path, format='JPEG')
 
-        preprocess_image(img_path)
+        # Analyze with the same image
         real_age = analyze_image(img_path)
-        skin_quality_score, insights, numeric_insights = analyze_skin_quality(img_path)  # Unpack
-        skin_age = calculate_skin_age(real_age, skin_quality_score, skin_factors)
+        skin_quality_score, insights, numeric_insights, real_data = analyze_skin_quality(img_path)
+
+
+        # Get average values
+        average_data = get_average_data_for_age(real_age)
+        
+        # Prepare data for numeric_insights based on real skin analysis results and insights
+        numeric_insights = {
+            "dark_circles": 1 if insights["dark_circles"] == "Mild" else 2 if insights["dark_circles"] == "Noticeable" else 3,
+            "wrinkles": 1 if insights["wrinkles"] == "Smooth" else 2 if insights["wrinkles"] == "Few lines" else 3,
+            "evenness": 1 if insights["evenness"] == "Even" else 2 if insights["evenness"] == "Slight unevenness" else 3,
+            "pigmentation": 1 if insights["pigmentation"] == "Minimal" else 2 if insights["pigmentation"] == "Moderate" else 3
+        }
+
+        # Explicitly convert NumPy values to standard Python types:
+        real_age = int(real_age) if real_age != -1 else -1
+        skin_quality_score = float(skin_quality_score)
+        average_data = {k: int(v) for k, v in average_data.items()}
+        real_data = {k: float(v) for k, v in real_data.items()}  # Convert real_data too!
 
         return jsonify({
             "real_age": real_age,
             "skin_quality_score": skin_quality_score,
-            "skin_age": skin_age,
+            "skin_age": calculate_skin_age(real_age, skin_quality_score, skin_factors),
             "insights": insights,
-            "numeric_insights": numeric_insights
+            "numeric_insights": numeric_insights,
+            "average_data": average_data,
+            "real_data": real_data
         })
 
     except Exception as e:
@@ -146,4 +190,4 @@ def upload_webcam():
         return jsonify({"error": str(e)}), 500  # Return specific error
 
 if __name__ == "__main__":
-    app.run(debug=True)  # Corrected debug statement
+    app.run(debug=True)

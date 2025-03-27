@@ -1,18 +1,25 @@
 import React from 'react';
 import './Results.css';
 import { generateDonutChart } from "../chartUtils.js";
+import BarChart from "../components/BarChart";
 
-const Results = ({ result, insights, numericInsights, skinScore, showResults }) => {
+const Results = ({ result, insights, numericInsights, skinScore, showResults, averageData, realData }) => {
     console.log("Result Prop", result);
     console.log("Insights Prop", insights);
     console.log("Numeric Insights Prop", numericInsights);
     console.log("Skin Score Prop", skinScore);
     console.log("Show Results", showResults);
+    console.log("AverageData", averageData);
+     console.log("realData",realData)
 
     return (
         <div className="results-card">
-            <h3>Prediction Result</h3>
-            <p>Real Age: {result.real_age}, Skin Age: {result.skin_age}</p>
+           
+            <div className="age-card">
+                <h3>Prediction Result</h3>
+                <p>Real Age: {result.real_age}</p>
+                <p>Skin Age: {result.skin_age}</p>
+            </div>
 
             {showResults && (
                 <>
@@ -29,7 +36,7 @@ const Results = ({ result, insights, numericInsights, skinScore, showResults }) 
                             );
                         })}
                     </div>
-
+                    <BarChart yourData={realData} averageData={averageData}/>
                     <div className="skin-score">Skin Score: {skinScore}</div>
                 </>
             )}
