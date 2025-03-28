@@ -43,11 +43,13 @@
     text-align: center;
 }
 
+
 /* Buttons */
 .capture-button,
 .predict-button,
 .results-button {
     background-color: #4d39ff; /* Changed to the specified color */
+    shape-margin: round;
     color: white;
     padding: 12px 20px;
     border: none;
@@ -96,7 +98,7 @@
     font-size: 1.2em; /* Slightly smaller heading */
     margin-top: 15px; /* Reduced top margin */
     margin-bottom: 10px; /* Reduced bottom margin */
-    color: #7957a8; /* Consistent heading color */
+    color: #6a00ff; /* Consistent heading color */
     text-align: center;
 }
 
@@ -113,8 +115,8 @@
 
 /* Predicted Age Card */
 .predicted-age-card {
-    background: #ffffff;
-    color: #4b0082;
+    background: #d18ffc;
+    color: #000000;
     padding: 12px;
     border-radius: 10px;
     margin-top: 15px;
@@ -180,4 +182,23 @@
     color: #000000; /* Black labels */
     font-weight: bold;
     margin-top: 5px;
+}/* Capture Button - Rounded Rectangle */
+.capture-button {
+    background-color: #4d39ff; /* Updated color */
+    color: white;
+    padding: 12px 24px; /* Adjust padding for better shape */
+    border: none;
+    border-radius: 25px; /* Rounded ends */
+    cursor: pointer;
+    font-size: 14px;
+    font-weight: bold; /* Makes text bold */
+    transition: background-color 0.3s ease;
+    display: block;
+    margin: 10px auto; /* Center the button */
+    width: fit-content; /* Only take necessary space */
+}
+
+/* Hover effect */
+.capture-button:hover {
+    background-color: #6d3fd0; /* Slightly lighter purple on hover */
 }

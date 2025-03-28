@@ -71,7 +71,7 @@ const SkinAgePredictor = () => {
                 setAverageData({});
                 setRealData({});
             } else {
-                setPredictedAge(`✅ Real Age: ${data.real_age}, Skin Age: ${data.skin_age}`);
+                setPredictedAge(` Real Age: ${data.real_age}, Skin Age: ${data.skin_age}`);
                 setPredictionData({ real_age: data.real_age, skin_age: data.skin_age });
                 setInsights(data.insights);
                 setNumericInsights(data.numeric_insights);
@@ -129,7 +129,9 @@ const SkinAgePredictor = () => {
                 <img ref={capturedImageRef} style={{ display: "none" }} alt="Captured" />
 
                 </div>
-<h3>Skin Factors</h3>
+                <h3>
+  <span style={{ color: '#5604c7' }}>Skin Factors</span>
+</h3>
 {[
     { key: "Sun_Exposure", labels: ["Very Low", "Low", "Moderate", "High", "Very High"] },
     { key: "Sleep_Cycle", labels: ["Very Poor", "Inadequate", "Irregular", "Good", "Excellent"] },
