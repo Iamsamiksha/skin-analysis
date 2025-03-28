@@ -57,11 +57,11 @@ const Results = ({ result, insights, numericInsights, skinScore, showResults, av
 
             {/* Download Button */}
             <button className="download-btn" onClick={downloadPDF}>Download as PDF</button>
-            {/* <button className="download-btn" style={{ color: 'white' }}>
+            <button className="download-btn" style={{ color: 'white' }}>
     <a href="https://skin-analysis-ui.vercel.app/" className="home" style={{ color: 'inherit', textDecoration: 'none' }}>
         Back To Home
     </a>
-</button> */}
+</button>
         </div>
     );
 };
