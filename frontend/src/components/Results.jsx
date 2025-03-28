@@ -1,4 +1,4 @@
-import React, { useRef } from "react";
+import React, { useRef, useEffect } from "react"; // Import useEffect
 import "./Results.css";
 import { generateDonutChart } from "../chartUtils.js";
 import BarChart from "../components/BarChart";
@@ -7,6 +7,11 @@ import html2canvas from "html2canvas";
 
 const Results = ({ result, insights, numericInsights, skinScore, showResults, averageData, realData }) => {
     const resultRef = useRef(); // Reference for capturing the PDF
+
+    // Log averageData when it changes
+    useEffect(() => {
+        console.log("averageData in Results component:", averageData);
+    }, [averageData]);
 
     const downloadPDF = () => {
         const input = resultRef.current;

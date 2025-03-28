@@ -4,35 +4,64 @@ import { Chart as ChartJS, BarElement, CategoryScale, LinearScale, Title, Toolti
 
 ChartJS.register(BarElement, CategoryScale, LinearScale, Title, Tooltip, Legend);
 
-const labels = ['Wrinkles', 'Dark Circles', 'Unevenness', 'Pigmentation'];  // Renamed labels
+const labels = ['Wrinkles', 'Dark Circles', 'Unevenness', 'Pigmentation'];
 
 const BarChart = ({ yourData, averageData }) => {
+
+    // Log immediately upon entering the component
+    console.log("BarChart component received: yourData =", yourData, ", averageData =", averageData);
+
+    // Function to safely convert to number, handling null/undefined
+    const getSafeNumber = (value) => {
+        if (value === null || value === undefined) {
+            return 0;
+        }
+        const num = Number(value);
+        return isNaN(num) ? 0 : num; // Return 0 if conversion fails
+    };
+
+    const yourWrinkles = getSafeNumber(yourData?.wrinkles);
+    const yourDarkCircles = getSafeNumber(yourData?.dark_circles);
+    const yourEvenness = getSafeNumber(yourData?.evenness / 2);
+    const yourPigmentation = getSafeNumber(yourData?.pigmentation);
+
+    const avgWrinkles = getSafeNumber(averageData?.wrinkles);
+    const avgDarkCircles = getSafeNumber(averageData?.dark_circles);
+    const avgEvenness = getSafeNumber(averageData?.evenness / 2);
+    const avgPigmentation = getSafeNumber(averageData?.pigmentation);
+
+    console.log("Processed data:", {
+        yourWrinkles, yourDarkCircles, yourEvenness, yourPigmentation,
+        avgWrinkles, avgDarkCircles, avgEvenness, avgPigmentation
+    });
+
+
     const data = {
         labels,
         datasets: [
             {
                 label: 'Your Data',
                 data: [
-                  Math.round(yourData?.wrinkles) || 0,
-                  Math.round(yourData?.dark_circles) || 0,
-                  Math.round(yourData?.evenness / 2) || 0,
-                  Math.round(yourData?.pigmentation) || 0
+                    Math.round(yourWrinkles),
+                    Math.round(yourDarkCircles),
+                    Math.round(yourEvenness),
+                    Math.round(yourPigmentation)
                 ],
-                backgroundColor: '#8b63f7',  // Light Lavender
-                borderColor: '#04000f',      // Darker Lavender
+                backgroundColor: '#8b63f7',
+                borderColor: '#04000f',
                 borderWidth: 1,
                 borderRadius: 5,
             },
             {
                 label: 'Avg Data of this Age Group',
                 data: [
-                    averageData?.wrinkles || 0,
-                    averageData?.dark_circles || 0,
-                    averageData?.evenness/2 || 0,
-                    averageData?.pigmentation || 0
+                    Math.round(avgWrinkles),
+                    Math.round(avgDarkCircles),
+                    Math.round(avgEvenness),
+                    Math.round(avgPigmentation)
                 ],
-                backgroundColor: '#632ff5',  // Medium Lavender
-                borderColor: '#04000f',      // Darker Purple
+                backgroundColor: '#632ff5',
+                borderColor: '#04000f',
                 borderWidth: 1,
                 borderRadius: 5,
             }
@@ -63,10 +92,13 @@ const BarChart = ({ yourData, averageData }) => {
             y: {
                 ticks: {
                     color: '#553980'
-                }
+                },
+                beginAtZero: true // Ensure y-axis starts from 0
             }
         }
     };
+
+    console.log("Chart data being passed to Bar component:", data);
 
     return <Bar data={data} options={options} />;
 };
