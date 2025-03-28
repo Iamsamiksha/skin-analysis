@@ -50,7 +50,7 @@ const SkinAgePredictor = () => {
         const imageData = canvas.toDataURL("image/jpeg");
 
         try {
-            const response = await fetch("http://127.0.0.1:5000/upload_webcam", {
+            const response = await fetch("https://skin-analysis-y74l.onrender.com/upload_webcam", {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
                 body: JSON.stringify({ image: imageData, skin_factors: skinFactors }),
