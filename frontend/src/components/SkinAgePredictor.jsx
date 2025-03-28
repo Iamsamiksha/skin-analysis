@@ -1,5 +1,5 @@
 import React, { useEffect, useRef, useState } from "react";
-import Results from "./results";
+import Results from "./Results";
 import './SkinAgePredictor.css';
 
 const SkinAgePredictor = () => {
