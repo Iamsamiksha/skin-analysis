@@ -22,6 +22,7 @@ const SkinAgePredictor = () => {
     const [predictionData, setPredictionData] = useState({});
     const [averageData, setAverageData] = useState({});
     const [realData, setRealData] = useState({});
+    const [errorMessage, setErrorMessage] = useState(""); // New state for error message
 
     useEffect(() => {
         navigator.mediaDevices.getUserMedia({ video: true })
@@ -62,7 +63,8 @@ const SkinAgePredictor = () => {
             const data = await response.json();
 
             if (data.error) {
-                setPredictedAge(`❌ Error: ${data.error}`);
+                setErrorMessage(`❌ Error: ${data.error}`); // Set generic error
+                setPredictedAge("");
                 setInsights({});
                 setNumericInsights({});
                 setSkinScore("");
@@ -70,51 +72,63 @@ const SkinAgePredictor = () => {
                 setShowPredicted(false);
                 setAverageData({});
                 setRealData({});
+
+                setPredictionData({ real_age: null, skin_age: null }); // Reset
+            } else if (data.age_error_message) {  // Check specifically for age_error_message
+                // Handle the case where no face is detected or there's a specific age error
+                setErrorMessage(data.age_error_message); // Use the message from the backend
+                setPredictedAge("");
+                setInsights({});
+                setNumericInsights({});
+                setSkinScore("");
+                setShowResults(false);
+                setShowPredicted(false);
+                setAverageData({});
+                setRealData({});
+                setPredictionData({ real_age: null, skin_age: null }); // Reset
+            }
+             else {
+                // Display results when the realAge is received successfully.
+                setErrorMessage(""); //Clear any error message
+                setPredictedAge(`✅ Real Age: ${data.real_age}, Skin Age: ${data.skin_age}`);
+
             } else {
                 setPredictedAge(` Real Age: ${data.real_age}, Skin Age: ${data.skin_age}`);
-                setPredictionData({ real_age: data.real_age, skin_age: data.skin_age });
-                setInsights(data.insights);
-                setNumericInsights(data.numeric_insights);
-                setSkinScore(data.skin_quality_score);
-                // setShowResults(true);   // set the results into true
-                setShowPredicted(true);
 
-                // Corrected data mapping for averageData and realData
-                setAverageData({
-                    wrinkles: data.average_data.Wrinkles,
-                    dark_circles: data.average_data.Dark_circles,
-                    evenness: data.average_data.Evenness,
-                    pigmentation: data.average_data.Pigmentation,
-                });
-                setRealData({
-                    wrinkles: data.real_data.wrinkles,
-                    dark_circles: data.real_data.dark_circles,
-                    evenness: data.real_data.evenness,
-                    pigmentation: data.real_data.pigmentation,
-                });
-
-
-                console.log("Data.Insights", data.insights);
-                console.log("Data.NumericInsights", data.numeric_insights);
-                console.log("Data.AverageData", data.average_data);
-                console.log("Data.realData", data.real_data);
-            }
-        } catch (error) {
-            console.error("Prediction error:", error);
-            setPredictedAge(`❌ Error: ${error.message}`);
-            setInsights({});
-            setNumericInsights({});
-            setSkinScore("");
-            setShowResults(false);
-            setShowPredicted(false);
-            setAverageData({});
-            setRealData({});
-        }
-    };
 
     const handleChange = (e) => {
         setSkinFactors({ ...skinFactors, [e.target.name]: e.target.value });
     };
+
+    const renderPredictionContent = () => {
+    if (errorMessage) {
+        return (
+            <div className="error-message">
+                <p>{errorMessage}</p>
+            </div>
+        );
+    } else if (showPredicted && predictionData.real_age === null && predictionData.skin_age === null) {
+        return (
+            <div className="instruction-card">
+                <p className="instruction-message-header">Please ensure:</p>
+                <ul>
+                    <li className="instruction-list-item">You are not too close to the camera.</li>
+                    <li className="instruction-list-item">You are not too far from the camera.</li>
+                    <li className="instruction-list-item">Only one face is in the frame.</li>
+                    <li className="instruction-list-item">There is adequate brightness.</li>
+                </ul>
+            </div>
+        );
+    } else if (showPredicted) {
+        return (
+            <div className="predicted-age-card">
+                <h3>{predictedAge}</h3>
+            </div>
+        );
+    }
+
+    return null;
+};
 
     return (
         <div className="predictor-container">
@@ -181,15 +195,11 @@ const SkinAgePredictor = () => {
   Predict Age
 </button>
 
-{showPredicted && (
-  <div className="predicted-age-card">
-    <h3>{predictedAge}</h3>
-  </div>
-)}
+{renderPredictionContent()}
 
 <button
     onClick={() => setShowResults(true)}
-    disabled={!skinScore || !showPredicted}
+    disabled={!skinScore || !showPredicted || errorMessage}
     style={{
         backgroundColor: "#6e4cfe",
         color: "white",

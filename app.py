@@ -88,22 +88,24 @@ def analyze_image(image_path):
 
     if image is None:
         print(f"Error: Could not load image from {image_path}")
-        return -1
+        return -1, "Error: Could not load image. Please try again."
 
     gray = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
     face_cascade = cv2.CascadeClassifier(cv2.data.haarcascades + 'haarcascade_frontalface_default.xml')
     faces = face_cascade.detectMultiScale(gray, 1.1, 6, minSize=(80, 80), flags=cv2.CASCADE_SCALE_IMAGE)
 
-    if len(faces) > 0:
+    if len(faces) > 1:
+        return -1, "Multiple faces detected. Please ensure only one face is in the frame."
+    elif len(faces) > 0:
         (x, y, w, h) = faces[0]
         face_img = gray[y:y+h, x:x+w]
         edges = cv2.Canny(face_img, 30, 100)
         wrinkle_intensity = np.sum(edges) / (edges.size * 255) * 100
         estimated_age = 20 + int(wrinkle_intensity)
         modified_age = estimated_age - 15  # Subtract 18
-        return max(1, min(modified_age, 80))  # Keep within 1-80
+        return max(1, min(modified_age, 80)), None  # Keep within 1-80
     else:
-        return -1  # No face detected
+        return -1, "No face detected. Please make sure your face is clearly visible in the frame."
 
 # Calculate Skin Age - No changes needed
 def calculate_skin_age(real_age, skin_quality_score, skin_factors):
@@ -154,9 +156,21 @@ def upload_webcam():
         image.save(img_path, format='JPEG')
 
         # Analyze with the same image
-        real_age = analyze_image(img_path)
-        skin_quality_score, insights, numeric_insights, real_data = analyze_skin_quality(img_path)
+        real_age, age_error_message = analyze_image(img_path)
 
+        if age_error_message:
+            return jsonify({
+                "real_age": -1,
+                "skin_quality_score": None,
+                "skin_age": -1,
+                "insights": {},
+                "numeric_insights": {},
+                "average_data": {},
+                "real_data": {},
+                "age_error_message": age_error_message
+            })
+
+        skin_quality_score, insights, numeric_insights, real_data = analyze_skin_quality(img_path)
 
         # Get average values
         average_data = get_average_data_for_age(real_age)
@@ -175,14 +189,17 @@ def upload_webcam():
         average_data = {k: int(v) for k, v in average_data.items()}
         real_data = {k: float(v) for k, v in real_data.items()}  # Convert real_data too!
 
+        skin_age = calculate_skin_age(real_age, skin_quality_score, skin_factors)
+
         return jsonify({
             "real_age": real_age,
             "skin_quality_score": skin_quality_score,
-            "skin_age": calculate_skin_age(real_age, skin_quality_score, skin_factors),
+            "skin_age": skin_age,
             "insights": insights,
             "numeric_insights": numeric_insights,
             "average_data": average_data,
-            "real_data": real_data
+            "real_data": real_data,
+            "age_error_message": None  # Clear error message if no error
         })
 
     except Exception as e:

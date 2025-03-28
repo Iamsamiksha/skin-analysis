@@ -202,3 +202,50 @@
 .capture-button:hover {
     background-color: #6d3fd0; /* Slightly lighter purple on hover */
 }
+/* Instruction Card */
+.instruction-card {
+    background-color: #4d39ff; /* Light grey background */
+    border: 1px solid #ddd; /* Light grey border */
+    border-radius: 10px;
+    padding: 15px;
+    margin-top: 20px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2); /* Add a subtle shadow */
+    color: #333; /* Dark grey color for the text */
+    text-align: left;
+    width: 80%; /* Adjust the width as needed */
+    margin-left: auto;
+    margin-right: auto;
+    
+}
+
+/* Style for "Please ensure:" header in instruction card */
+.instruction-message-header {
+    font-weight: bold;
+    margin-bottom: 10px;
+    color: #4d39ff; /* set instruction message to header color */
+}
+
+.instruction-card ul {
+    list-style-type: disc;
+    padding-left: 25px;
+}
+
+.instruction-card li {
+    margin-bottom: 8px;
+    color: #4d39ff; /* Dark grey color for the list items */
+}
+.error-message {
+    color: #e74c3c; /* Red color for error messages */
+    font-size: 16px;
+    margin-top: 10px;
+    text-align: center;
+    font-weight: bold; /* Make the text bold */
+    display: flex; /* Use flexbox to align the emoji and text */
+    align-items: center; /* Vertically align items */
+    justify-content: center; /* Horizontally align items */
+}
+
+.error-message::before {
+    content: "❌"; /* Add the cross emoji before the text */
+    margin-right: 5px; /* Add some space between the emoji and the text */
+}
