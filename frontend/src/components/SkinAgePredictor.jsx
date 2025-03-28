@@ -72,6 +72,7 @@ const SkinAgePredictor = () => {
                 setShowPredicted(false);
                 setAverageData({});
                 setRealData({});
+
                 setPredictionData({ real_age: null, skin_age: null }); // Reset
             } else if (data.age_error_message) {  // Check specifically for age_error_message
                 // Handle the case where no face is detected or there's a specific age error
@@ -90,38 +91,10 @@ const SkinAgePredictor = () => {
                 // Display results when the realAge is received successfully.
                 setErrorMessage(""); //Clear any error message
                 setPredictedAge(`✅ Real Age: ${data.real_age}, Skin Age: ${data.skin_age}`);
-                setPredictionData({ real_age: data.real_age, skin_age: data.skin_age });
-                setInsights(data.insights);
-                setNumericInsights(data.numeric_insights);
-                setSkinScore(data.skin_quality_score);
-                setShowPredicted(true);
-                setAverageData({
-                    wrinkles: data.average_data.Wrinkles,
-                    dark_circles: data.average_data.Dark_circles,
-                    evenness: data.average_data.Evenness,
-                    pigmentation: data.average_data.Pigmentation,
-                });
-                setRealData({
-                    wrinkles: data.real_data.wrinkles,
-                    dark_circles: data.real_data.dark_circles,
-                    evenness: data.real_data.evenness,
-                    pigmentation: data.real_data.pigmentation,
-                });
-            }
-        } catch (error) {
-            console.error("Prediction error:", error);
-            setErrorMessage(`❌ Error: ${error.message}`);
-            setPredictedAge("");
-            setInsights({});
-            setNumericInsights({});
-            setSkinScore("");
-            setShowResults(false);
-            setShowPredicted(false);
-            setAverageData({});
-            setRealData({});
-            setPredictionData({ real_age: null, skin_age: null }); // Reset
-        }
-    };
+
+            } else {
+                setPredictedAge(` Real Age: ${data.real_age}, Skin Age: ${data.skin_age}`);
+
 
     const handleChange = (e) => {
         setSkinFactors({ ...skinFactors, [e.target.name]: e.target.value });
@@ -170,7 +143,9 @@ const SkinAgePredictor = () => {
                 <img ref={capturedImageRef} style={{ display: "none" }} alt="Captured" />
 
                 </div>
-<h3>Skin Factors</h3>
+                <h3>
+  <span style={{ color: '#5604c7' }}>Skin Factors</span>
+</h3>
 {[
     { key: "Sun_Exposure", labels: ["Very Low", "Low", "Moderate", "High", "Very High"] },
     { key: "Sleep_Cycle", labels: ["Very Poor", "Inadequate", "Irregular", "Good", "Excellent"] },
