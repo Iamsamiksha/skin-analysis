@@ -58,7 +58,7 @@ def analyze_skin_quality(image_path):
     print("a_channel std:", np.std(a_channel))
     print("b_channel std:", np.std(b_channel))
     pigmentation = np.std(a_channel) + np.std(b_channel)
-    print("pigmentation:", pigmentation)
+    print("Pigmentation:", pigmentation)
 
 
     insights = {

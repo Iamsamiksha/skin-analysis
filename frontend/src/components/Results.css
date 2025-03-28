@@ -90,12 +90,14 @@
     cursor: pointer;
     transition: all 0.3s ease-in-out;
     text-align: center;
+   ; /* Remove underline */
 }
 
 .download-btn:hover {
     background: linear-gradient(45deg, #934ae2, #2512d5); /* Changed Theme Color */
     transform: scale(1.05);
 }
+
 
 /* Responsive Design */
 @media (max-width: 768px) {
