@@ -14,7 +14,7 @@
 }
 
 .app-title {
-  color: #8358fe; /* Darker lavender for headings */
+  color: #4d39ff; /* Darker lavender for headings */
   margin-bottom: 20px;
 }
 
@@ -25,18 +25,18 @@
   padding: 15px;
   margin-bottom: 20px;
   text-align: center;
-  color: #553980;
+  color: #23007a;
 }
 
 .results-button {
-  background-color: #c3aed6; /* Button color */
+  background-color: #a041f9; /* Button color */
   color: white;
   padding: 10px 20px;
   border: none;
   border-radius: 5px;
   cursor: pointer;
   font-size: 16px;
-  transition: background-color 0.3s ease;
+  transition: background-color 0.3s ease; 
   margin-bottom: 20px;
 }
 
