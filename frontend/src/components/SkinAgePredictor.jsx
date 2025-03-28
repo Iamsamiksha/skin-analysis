@@ -118,7 +118,17 @@ const SkinAgePredictor = () => {
 
     return (
         <div className="predictor-container">
-            <h2>Capture Your Image</h2>
+           <h2 style={{ 
+    color: "#6e4cfe", 
+    fontSize: "28px", 
+    fontWeight: "bold", 
+    fontFamily: "Arial, sans-serif", 
+    textAlign: "center",
+    letterSpacing: "1px"
+}}>
+  Capture Your Image
+</h2>
+
             <div id="video-container">
                 <video ref={videoRef} width="400" height="300" autoPlay></video>
             </div>
@@ -161,18 +171,48 @@ const SkinAgePredictor = () => {
         </div>
     </div>
 ))}
+<button 
+  onClick={handlePrediction} 
+  style={{
+    backgroundColor: "#6e4cfe", 
+    color: "white", 
+    padding: "10px 16px", 
+    border: "none", 
+    borderRadius: "20px", 
+    cursor: "pointer", 
+    width: "160px",
+    fontSize: "14px",
+    display: "block",
+    marginBottom: "12px"
+  }}
+>
+  Predict Age
+</button>
 
+{showPredicted && (
+  <div className="predicted-age-card">
+    <h3>{predictedAge}</h3>
+  </div>
+)}
 
-            <button onClick={handlePrediction} className="predict-button">Predict Age</button>
-            {showPredicted && (
-                <div className="predicted-age-card">
-                    <h3>{predictedAge}</h3>
-                </div>
-            )}
+<button 
+  onClick={() => setShowResults(true)} 
+  disabled={!skinScore || !showPredicted} 
+  style={{
+    backgroundColor: "#6e4cfe", 
+    color: "white", 
+    padding: "10px 16px", 
+    border: "none", 
+    borderRadius: "20px", 
+    cursor: "pointer", 
+    width: "160px",
+    fontSize: "14px",
+    display: "block"
+  }}
+>
+  Get Results
+</button>
 
-            <button onClick={() => setShowResults(true)} disabled={!skinScore || !showPredicted} className="results-button">
-                Get Results
-            </button>
 
             {showResults && (
                 <Results

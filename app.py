@@ -125,9 +125,9 @@ def calculate_skin_age(real_age, skin_quality_score, skin_factors):
 
 def get_average_data_for_age(real_age):
     if 0 <= real_age <= 15:
-        return {"Wrinkles": 3, "Dark_Circles": 4, "Pigmentation": 15, "Evenness": 50}  # Example values
+        return {"Wrinkles": 3, "Dark_Circles": 4, "Pigmentation": 5, "Evenness": 50}  # Example values
     elif 16 <= real_age <= 30:
-        return {"Wrinkles": 7, "Dark_circles": 6, "Pigmentation": 25, "Evenness": 58}  # Example values
+        return {"Wrinkles": 7, "Dark_circles": 6, "Pigmentation": 15, "Evenness": 58}  # Example values
     elif 31 <= real_age <= 45:
         return {"Wrinkles": 12, "Dark_circles": 9, "Pigmentation": 20, "Evenness": 70}  # Example values
     else:

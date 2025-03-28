@@ -27,11 +27,12 @@ const Results = ({ result, insights, numericInsights, skinScore, showResults, av
 
     return (
         <div ref={resultRef} className="results-card">
-            <div className="age-card">
-                <h3>Prediction Result</h3>
-                <p>Real Age: {result.real_age}</p>
-                <p>Skin Age: {result.skin_age}</p>
-            </div>
+        <div className="age-card">
+    <h3 style={{ color: "#4d39ff", fontWeight: "bold" }}>Prediction Result</h3>
+    <p style={{ color: "#4d39ff", fontWeight: "bold" }}>Real Age: {result.real_age}</p>
+    <p style={{ color: "#4d39ff", fontWeight: "bold" }}>Skin Age: {result.skin_age}</p>
+</div>
+
 
             {showResults && (
                 <>

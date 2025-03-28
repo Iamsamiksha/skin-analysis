@@ -83,7 +83,7 @@
     padding: 12px 18px;
     font-size: 16px;
     font-weight: bold;
-    background: linear-gradient(45deg, #4d39ff, #4A90E2); /* Changed Theme Color */
+    background: linear-gradient(45deg, #2512d5, #934ae2); /* Changed Theme Color */
     color: white;
     border: none;
     border-radius: 8px;
@@ -93,7 +93,7 @@
 }
 
 .download-btn:hover {
-    background: linear-gradient(45deg, #4A90E2, #4d39ff); /* Changed Theme Color */
+    background: linear-gradient(45deg, #934ae2, #2512d5); /* Changed Theme Color */
     transform: scale(1.05);
 }
 
@@ -115,7 +115,7 @@
     }
 }
 .age-card {
-    background-color: #efebfc;
+    background-color: #f3f1fb;
     border-radius: 10px;
     box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
     padding: 20px;
