@@ -15,7 +15,7 @@ const SkinAgePredictor = () => {
     });
     const [predictedAge, setPredictedAge] = useState("");
     const [insights, setInsights] = useState({});
-    const [numericInsights, setNumericInsights] = useState({});  // Add numeric insights
+    const [numericInsights, setNumericInsights] = useState({});
     const [skinScore, setSkinScore] = useState("");
     const [showResults, setShowResults] = useState(false);
     const [showPredicted, setShowPredicted] = useState(false);
@@ -41,7 +41,7 @@ const SkinAgePredictor = () => {
 
         capturedImageRef.current.src = imageData;
         capturedImageRef.current.style.display = "block";
-        document.querySelector(".captured-image-container").style.display = "flex"; // Show the preview dynamically
+        document.querySelector(".captured-image-container").style.display = "flex";
     };
 
     const handlePrediction = async () => {
@@ -68,24 +68,36 @@ const SkinAgePredictor = () => {
                 setSkinScore("");
                 setShowResults(false);
                 setShowPredicted(false);
-                setAverageData({});  // clear average data as well
+                setAverageData({});
                 setRealData({});
             } else {
                 setPredictedAge(`✅ Real Age: ${data.real_age}, Skin Age: ${data.skin_age}`);
                 setPredictionData({ real_age: data.real_age, skin_age: data.skin_age });
                 setInsights(data.insights);
-                setNumericInsights(data.numeric_insights); // Set numeric insights
+                setNumericInsights(data.numeric_insights);
                 setSkinScore(data.skin_quality_score);
                 setShowResults(true);
                 setShowPredicted(true);
-                setAverageData(data.average_data);
-                setRealData(data.real_data);
+
+                // Corrected data mapping for averageData and realData
+                setAverageData({
+                    wrinkles: data.average_data.Wrinkles,
+                    dark_circles: data.average_data.Dark_circles,
+                    evenness: data.average_data.Evenness,
+                    pigmentation: data.average_data.Pigmentation,
+                });
+                setRealData({
+                    wrinkles: data.real_data.wrinkles,
+                    dark_circles: data.real_data.dark_circles,
+                    evenness: data.real_data.evenness,
+                    pigmentation: data.real_data.pigmentation,
+                });
+
 
                 console.log("Data.Insights", data.insights);
                 console.log("Data.NumericInsights", data.numeric_insights);
-                console.log("Data.AverageData", data.average_data);  // log average data
-                console.log("Data.realData", data.real_data);  // log real data
-
+                console.log("Data.AverageData", data.average_data);
+                console.log("Data.realData", data.real_data);
             }
         } catch (error) {
             console.error("Prediction error:", error);
@@ -95,8 +107,8 @@ const SkinAgePredictor = () => {
             setSkinScore("");
             setShowResults(false);
             setShowPredicted(false);
-            setAverageData({});  // clear average data in catch as well
-            setRealData({})
+            setAverageData({});
+            setRealData({});
         }
     };
 
