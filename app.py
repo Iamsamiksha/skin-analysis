@@ -102,7 +102,7 @@ def analyze_image(image_path):
         edges = cv2.Canny(face_img, 30, 100)
         wrinkle_intensity = np.sum(edges) / (edges.size * 255) * 100
         estimated_age = 20 + int(wrinkle_intensity)
-        modified_age = estimated_age - 15  # Subtract 18
+        modified_age = estimated_age - 12 # Subtract 18
         return max(1, min(modified_age, 80)), None  # Keep within 1-80
     else:
         return -1, "No face detected. Please make sure your face is clearly visible in the frame."
